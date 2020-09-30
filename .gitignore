@@ -7,4 +7,6 @@
 build/
 
 .idea/
-*.iml
+.idea/workspace.xml
+
+one_trust_headless_sdk.iml
