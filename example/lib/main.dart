@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:one_trust_headless_sdk/one_trust_headless_sdk.dart';
+import 'package:one_trust_headless_sdk/model/otsdkdata.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,7 +15,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  OTSDKData _data;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -24,12 +26,13 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
+    OTSDKData data;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      platformVersion = await OneTrustHeadlessSdk.platformVersion;
+      data = await OneTrustHeadlessSdk.oTSDKData;
+      _isLoading = false;
     } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      _isLoading = false;
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -38,7 +41,7 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _platformVersion = platformVersion;
+      _data = data;
     });
   }
 
@@ -50,7 +53,10 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: !_isLoading
+              ? Text(
+                  'data: ${_data != null ? _data.data : "something went wrong"}')
+              : Text("loading..."),
         ),
       ),
     );

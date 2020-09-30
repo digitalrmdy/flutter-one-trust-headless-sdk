@@ -1,6 +1,7 @@
 package be.rmdy.one_trust_headless_sdk
 
 import androidx.annotation.NonNull;
+import be.rmdy.one_trust_headless_sdk.ot.SDKService
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
@@ -16,6 +17,8 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
+
+  private val sdkService = SDKService()
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "one_trust_headless_sdk")
@@ -40,10 +43,19 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-    } else {
-      result.notImplemented()
+    if (!sdkService.initialized) {
+      sdkService.initialize()
+    }
+    when (call.method) {
+        "getPlatformVersion" -> {
+          result.success("Android ${android.os.Build.VERSION.RELEASE}")
+        }
+        "getOTSDKData" -> {
+          return result.success(sdkService.getOTSDKData())
+        }
+        else -> {
+          result.notImplemented()
+        }
     }
   }
 
