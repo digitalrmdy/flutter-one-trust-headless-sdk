@@ -69,18 +69,70 @@ class _MyAppState extends State<MyApp> {
           child: !_isLoading
               ? Container(
                   child: _data != null
-                      ? Column(
-                          children: [
-                            if (_data.banner != null)
-                              Text(
-                                  "${_data.banner.showBanner} - ${_data.banner.message} - ${_data.banner.allowAllButtonText} - ${_data.banner.moreInfoButtonText}")
-                          ],
-                        )
+                      ? ConsentInformationScreen(_data)
                       : Text("something went wrong"),
                 )
               : Text("loading..."),
         ),
       ),
+    );
+  }
+}
+
+class ConsentInformationScreen extends StatelessWidget {
+  final OTSDKData data;
+
+  ConsentInformationScreen(this.data);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        Container(
+          color: Colors.grey,
+          height: 32,
+          child: Center(
+            child: Text("BANNER"),
+          ),
+        ),
+        Text(data.banner.message),
+        Text("allow all button:  ${data.banner.allowAllButtonText}"),
+        Text("more info button:  ${data.banner.moreInfoButtonText}"),
+        Text("show banner? ${data.banner.showBanner}"),
+        Container(
+          color: Colors.grey,
+          height: 32,
+          child: Center(
+            child: Text("PREFERENCES"),
+          ),
+        ),
+        Text(data.preferences.title),
+        Text(data.preferences.message),
+        Text("accept all button:  ${data.preferences.acceptAllButtonText}"),
+        Text(data.preferences.cookiePreferencesTitle),
+        Text("save choices button:  ${data.preferences.saveChoicesButtonText}"),
+        Container(
+          color: Colors.grey,
+          height: 32,
+          child: Center(
+            child: Text("SDK GROUPS"),
+          ),
+        ),
+        ...data.preferences.groups.map(
+          (g) => Column(
+            children: [
+              Text(g.name),
+              Text(g.description),
+              Text("consent given?  ${g.consentGiven}"),
+              Text("editable?  ${g.editable}"),
+              Container(
+                color: Colors.grey,
+                height: 8,
+              )
+            ],
+          ),
+        )
+      ],
     );
   }
 }

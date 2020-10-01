@@ -18,7 +18,7 @@ class SDKService {
                     .setAPIVersion("6.6.1")
                     .shouldCreateProfile(true)
                     .build()
-            _sdk!!.initOTSDKData("cdn.cookielaw.org", "f1383ce9-d3ad-4e0d-98bf-6e736846266b-test", "nl",
+            _sdk!!.initOTSDKData("cdn.cookielaw.org", "f1383ce9-d3ad-4e0d-98bf-6e736846266b-test", "en",
                     sdkParams,
                     object : OTCallback {
                         override fun onSuccess(response: OTResponse) {
