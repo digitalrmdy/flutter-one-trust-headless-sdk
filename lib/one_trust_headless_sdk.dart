@@ -45,4 +45,15 @@ class OneTrustHeadlessSdk {
       rethrow;
     }
   }
+
+  static Future<bool> get shouldShowBanner async {
+    try {
+      return _channel.invokeMethod<bool>('shouldShowBanner');
+    } on PlatformException catch (e) {
+      developer.log(
+          'Error during get shouldShowBanner: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
+  }
 }

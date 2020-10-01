@@ -40,4 +40,9 @@ class SDKService {
             "";
         }
     }
+
+    fun shouldShowBanner(): Boolean {
+        val sdk = _sdk
+        return sdk?.shouldShowBanner() ?: false
+    }
 }

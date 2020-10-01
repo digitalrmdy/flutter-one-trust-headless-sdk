@@ -38,6 +38,8 @@ class _MyAppState extends State<MyApp> {
           storageLocation: "cdn.cookielaw.org",
           domainIdentifier: "f1383ce9-d3ad-4e0d-98bf-6e736846266b-test",
           languageCode: "en");
+      var shouldShowBanner = await OneTrustHeadlessSdk.shouldShowBanner;
+      print("should show banner? $shouldShowBanner");
       data = await OneTrustHeadlessSdk.oTSDKData;
     } on PlatformException catch (e) {
       error = "${e.code} - ${e.message}";
@@ -50,13 +52,10 @@ class _MyAppState extends State<MyApp> {
       _error = error;
       _data = data;
     });
-
-    print(_error);
   }
 
   @override
   Widget build(BuildContext context) {
-    print("rebuild $_error");
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(

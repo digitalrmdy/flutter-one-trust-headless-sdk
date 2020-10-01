@@ -55,6 +55,9 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
                     }
                 } )
             }
+            "shouldShowBanner" -> {
+                return result.success(sdkService.shouldShowBanner())
+            }
             "getOTSDKData" -> {
                 return result.success(sdkService.getOTSDKData())
             }
