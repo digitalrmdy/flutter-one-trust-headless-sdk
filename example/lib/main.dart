@@ -17,6 +17,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _error;
   OTSDKData _data;
+  bool _shouldShowBanner;
   bool _isLoading = true;
 
   @override
@@ -32,14 +33,14 @@ class _MyAppState extends State<MyApp> {
     });
     OTSDKData data;
     String error;
+    bool shouldShowBanner;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       await OneTrustHeadlessSdk.init(
           storageLocation: "cdn.cookielaw.org",
           domainIdentifier: "f1383ce9-d3ad-4e0d-98bf-6e736846266b-test",
           languageCode: "en");
-      var shouldShowBanner = await OneTrustHeadlessSdk.shouldShowBanner;
-      print("should show banner? $shouldShowBanner");
+      shouldShowBanner = await OneTrustHeadlessSdk.shouldShowBanner;
       data = await OneTrustHeadlessSdk.oTSDKData;
     } on PlatformException catch (e) {
       error = "${e.code} - ${e.message}";
@@ -51,6 +52,7 @@ class _MyAppState extends State<MyApp> {
       _isLoading = false;
       _error = error;
       _data = data;
+      _shouldShowBanner = shouldShowBanner;
     });
   }
 
@@ -79,7 +81,7 @@ class _MyAppState extends State<MyApp> {
               ? Container(
                   child: _error != null
                       ? Text("Error $_error")
-                      : ConsentInformationScreen(_data),
+                      : ConsentInformationScreen(_data, _shouldShowBanner),
                 )
               : Text("loading..."),
         ),
@@ -90,8 +92,9 @@ class _MyAppState extends State<MyApp> {
 
 class ConsentInformationScreen extends StatelessWidget {
   final OTSDKData data;
+  final bool shouldShowBanner;
 
-  ConsentInformationScreen(this.data);
+  ConsentInformationScreen(this.data, this.shouldShowBanner);
 
   @override
   Widget build(BuildContext context) {
@@ -105,9 +108,14 @@ class ConsentInformationScreen extends StatelessWidget {
           ),
         ),
         Text(data.banner.message),
-        Text("allow all button:  ${data.banner.allowAllButtonText}"),
+        MaterialButton(
+          onPressed: () {
+            OneTrustHeadlessSdk.acceptAll();
+          },
+          child: Text(data.banner.allowAllButtonText),
+        ),
         Text("more info button:  ${data.banner.moreInfoButtonText}"),
-        Text("show banner? ${data.banner.showBanner}"),
+        Text("show banner? $shouldShowBanner"),
         Container(
           color: Colors.grey,
           height: 32,

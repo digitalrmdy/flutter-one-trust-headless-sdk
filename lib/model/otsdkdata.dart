@@ -23,7 +23,6 @@ class OTSDKData {
     var json = jsonDecode(_data);
     var domainData = json["culture"]["DomainData"];
     return Banner(
-        showBanner: domainData["ShowAlertNotice"],
         message: domainData["AlertNoticeText"],
         allowAllButtonText: domainData["AlertAllowCookiesText"],
         moreInfoButtonText: domainData["AlertMoreInfoText"]);
@@ -55,14 +54,12 @@ class OTSDKData {
 }
 
 class Banner {
-  final bool showBanner;
   final String message;
   final String allowAllButtonText;
   final String moreInfoButtonText;
 
   Banner(
-      {@required this.showBanner,
-      @required this.message,
+      {@required this.message,
       @required this.allowAllButtonText,
       @required this.moreInfoButtonText});
 }

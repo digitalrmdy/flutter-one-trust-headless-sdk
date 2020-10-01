@@ -33,16 +33,14 @@ class SDKService {
     }
 
     fun getOTSDKData(): String {
-        val sdk = _sdk
-        return if (sdk != null) {
-            sdk.otsdkData
-        } else {
-            "";
-        }
+        return _sdk?.otsdkData ?: ""
     }
 
     fun shouldShowBanner(): Boolean {
-        val sdk = _sdk
-        return sdk?.shouldShowBanner() ?: false
+        return _sdk?.shouldShowBanner() ?: false
+    }
+
+    fun acceptAll() {
+        _sdk?.acceptAll()
     }
 }

@@ -61,6 +61,10 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
             "getOTSDKData" -> {
                 return result.success(sdkService.getOTSDKData())
             }
+            "acceptAll" -> {
+                sdkService.acceptAll()
+                return result.success(null)
+            }
             else -> {
                 result.notImplemented()
             }

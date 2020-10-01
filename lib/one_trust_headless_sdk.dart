@@ -35,6 +35,16 @@ class OneTrustHeadlessSdk {
     }
   }
 
+  static Future<void> acceptAll() async {
+    try {
+      await _channel.invokeMethod<bool>('acceptAll');
+    } on PlatformException catch (e) {
+      developer.log('Error during accept all: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
+  }
+
   static Future<OTSDKData> get oTSDKData async {
     try {
       final String data = await _channel.invokeMethod<String>('getOTSDKData');
