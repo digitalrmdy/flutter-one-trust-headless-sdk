@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
-class OTSDKData {
+class OTSdkData {
   final statusAlwaysActive = "always active";
   final statusActive = "active";
 
@@ -10,7 +10,7 @@ class OTSDKData {
   Banner _banner;
   Preferences _preferences;
 
-  OTSDKData(this._data) {
+  OTSdkData(this._data) {
     _banner = parseBanner();
     _preferences = parsePreferences();
   }
@@ -33,14 +33,27 @@ class OTSDKData {
     var domainData = json["culture"]["DomainData"];
     List<SdkGroup> groups = (domainData["Groups"] as List)
         .where((g) => (g["FirstPartyCookies"] as List).isNotEmpty)
-        .map((g) => SdkGroup(
-              name: g["GroupName"],
-              description: g["GroupDescription"],
-              consentGiven: g["Status"] == statusAlwaysActive ||
-                  g["Status"] == statusActive,
-              editable: g["Status"] != statusAlwaysActive,
-            ))
-        .toList();
+        .map(
+      (g) {
+        List<Sdk> sdks = (g["FirstPartyCookies"] as List).map(
+          (s) {
+            return Sdk(
+              name: s["Name"],
+              sdkId: s["SdkId"],
+            );
+          },
+        ).toList();
+
+        return SdkGroup(
+          name: g["GroupName"],
+          description: g["GroupDescription"],
+          consentGiven:
+              g["Status"] == statusAlwaysActive || g["Status"] == statusActive,
+          editable: g["Status"] != statusAlwaysActive,
+          sdks: sdks,
+        );
+      },
+    ).toList();
 
     return Preferences(
         title: domainData["MainText"],
@@ -86,12 +99,22 @@ class SdkGroup {
   final String description;
   final bool consentGiven;
   final bool editable;
+  final List<Sdk> sdks;
 
   SdkGroup(
       {@required this.name,
       @required this.description,
       @required this.consentGiven,
-      @required this.editable});
+      @required this.editable,
+      @required this.sdks});
+}
+
+class Sdk {
+  final String name;
+  final String sdkId;
+  final SdkConsentStatus consentStatus;
+
+  Sdk({@required this.name, @required this.sdkId, this.consentStatus});
 }
 
 enum SdkConsentStatus { given, notGiven, notBeenCollected }

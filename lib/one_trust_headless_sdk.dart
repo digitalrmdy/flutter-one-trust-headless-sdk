@@ -67,10 +67,10 @@ class OneTrustHeadlessSdk {
     }
   }
 
-  static Future<OTSDKData> get oTSDKData async {
+  static Future<OTSdkData> get oTSDKData async {
     try {
       final String data = await _channel.invokeMethod<String>('getOTSDKData');
-      return OTSDKData(data);
+      return OTSdkData(data);
     } on PlatformException catch (e) {
       developer.log('Error during get oTSDKData: ${e.code} - ${e.message}',
           name: 'one_trust_headless_sdk');

@@ -16,9 +16,10 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _error;
-  OTSDKData _data;
+  OTSdkData _data;
   bool _shouldShowBanner;
   bool _isLoading = true;
+  Map<String, SdkConsentStatus> _consentStatus;
 
   @override
   void initState() {
@@ -31,9 +32,10 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _isLoading = true;
     });
-    OTSDKData data;
+    OTSdkData data;
     String error;
     bool shouldShowBanner;
+    Map<String, SdkConsentStatus> consentStatus = {};
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       await OneTrustHeadlessSdk.init(
@@ -42,14 +44,13 @@ class _MyAppState extends State<MyApp> {
           languageCode: "en");
       shouldShowBanner = await OneTrustHeadlessSdk.shouldShowBanner;
       data = await OneTrustHeadlessSdk.oTSDKData;
-      print(
-          "query consent for Crashlytics ${await OneTrustHeadlessSdk.querySDKConsentStatus("8cf2cf0c-93d0-460c-8be6-fc2660d72999")}");
-      print(
-          "query consent for Firebase ${await OneTrustHeadlessSdk.querySDKConsentStatus("21ca335b-28fc-42df-9de0-7428a567264d")}");
-      print(
-          "query consent for OpenID ${await OneTrustHeadlessSdk.querySDKConsentStatus("3c2e3132-a39d-42b7-9605-d45b9d2b8017")}");
-      print(
-          "query consent for Admob ${await OneTrustHeadlessSdk.querySDKConsentStatus("10c05802-a98a-44b6-b0a2-e4d3080bc301")}");
+      for (var group in data.preferences.groups) {
+        for (var sdk in group.sdks) {
+          var status =
+              await OneTrustHeadlessSdk.querySDKConsentStatus(sdk.sdkId);
+          consentStatus[sdk.sdkId] = status;
+        }
+      }
     } on PlatformException catch (e) {
       error = "${e.code} - ${e.message}";
     }
@@ -61,6 +62,7 @@ class _MyAppState extends State<MyApp> {
       _error = error;
       _data = data;
       _shouldShowBanner = shouldShowBanner;
+      _consentStatus = consentStatus;
     });
   }
 
@@ -89,7 +91,8 @@ class _MyAppState extends State<MyApp> {
               ? Container(
                   child: _error != null
                       ? Text("Error $_error")
-                      : ConsentInformationScreen(_data, _shouldShowBanner),
+                      : ConsentInformationScreen(
+                          _data, _shouldShowBanner, _consentStatus),
                 )
               : Text("loading..."),
         ),
@@ -99,10 +102,12 @@ class _MyAppState extends State<MyApp> {
 }
 
 class ConsentInformationScreen extends StatelessWidget {
-  final OTSDKData data;
+  final OTSdkData data;
   final bool shouldShowBanner;
+  final Map<String, SdkConsentStatus> _consentStatus;
 
-  ConsentInformationScreen(this.data, this.shouldShowBanner);
+  ConsentInformationScreen(
+      this.data, this.shouldShowBanner, this._consentStatus);
 
   @override
   Widget build(BuildContext context) {
@@ -117,6 +122,7 @@ class ConsentInformationScreen extends StatelessWidget {
         ),
         Text(data.banner.message),
         MaterialButton(
+          color: Colors.green,
           onPressed: () {
             OneTrustHeadlessSdk.acceptAll();
           },
@@ -152,7 +158,29 @@ class ConsentInformationScreen extends StatelessWidget {
               Text("editable?  ${g.editable}"),
               Container(
                 color: Colors.grey,
-                height: 8,
+                height: 16,
+                child: Center(
+                  child: Text("SDKs"),
+                ),
+              ),
+              ...g.sdks.map(
+                (s) {
+                  return Column(
+                    children: [
+                      Text(s.name),
+                      Text(s.sdkId),
+                      Text("consent? ${_consentStatus[s.sdkId]}"),
+                      Container(
+                        color: Colors.grey,
+                        height: 8,
+                      )
+                    ],
+                  );
+                },
+              ),
+              Container(
+                color: Colors.grey,
+                height: 16,
               )
             ],
           ),
