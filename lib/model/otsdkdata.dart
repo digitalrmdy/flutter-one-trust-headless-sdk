@@ -93,3 +93,5 @@ class SdkGroup {
       @required this.consentGiven,
       @required this.editable});
 }
+
+enum SdkConsentStatus { given, notGiven, notBeenCollected }

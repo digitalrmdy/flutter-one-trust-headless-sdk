@@ -39,7 +39,29 @@ class OneTrustHeadlessSdk {
     try {
       await _channel.invokeMethod<bool>('acceptAll');
     } on PlatformException catch (e) {
-      developer.log('Error during accept all: ${e.code} - ${e.message}',
+      developer.log('Error during acceptAll: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
+  }
+
+  static Future<SdkConsentStatus> querySDKConsentStatus(String sDKId) async {
+    try {
+      var status = await _channel
+          .invokeMethod<int>('querySDKConsentStatus', <String, dynamic>{
+        'sDKId': sDKId,
+      });
+      switch (status) {
+        case 1:
+          return SdkConsentStatus.given;
+        case 0:
+          return SdkConsentStatus.notGiven;
+        default:
+          return SdkConsentStatus.notBeenCollected;
+      }
+    } on PlatformException catch (e) {
+      developer.log(
+          'Error during querySDKConsentStatus: ${e.code} - ${e.message}',
           name: 'one_trust_headless_sdk');
       rethrow;
     }

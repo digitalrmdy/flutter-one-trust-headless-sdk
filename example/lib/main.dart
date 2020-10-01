@@ -42,6 +42,14 @@ class _MyAppState extends State<MyApp> {
           languageCode: "en");
       shouldShowBanner = await OneTrustHeadlessSdk.shouldShowBanner;
       data = await OneTrustHeadlessSdk.oTSDKData;
+      print(
+          "query consent for Crashlytics ${await OneTrustHeadlessSdk.querySDKConsentStatus("8cf2cf0c-93d0-460c-8be6-fc2660d72999")}");
+      print(
+          "query consent for Firebase ${await OneTrustHeadlessSdk.querySDKConsentStatus("21ca335b-28fc-42df-9de0-7428a567264d")}");
+      print(
+          "query consent for OpenID ${await OneTrustHeadlessSdk.querySDKConsentStatus("3c2e3132-a39d-42b7-9605-d45b9d2b8017")}");
+      print(
+          "query consent for Admob ${await OneTrustHeadlessSdk.querySDKConsentStatus("10c05802-a98a-44b6-b0a2-e4d3080bc301")}");
     } on PlatformException catch (e) {
       error = "${e.code} - ${e.message}";
     }

@@ -43,4 +43,8 @@ class SDKService {
     fun acceptAll() {
         _sdk?.acceptAll()
     }
+
+    fun querySDKConsentStatus(sDKId: String): Int {
+        return _sdk?.getConsentStatusForSDKId(sDKId) ?: -1
+    }
 }

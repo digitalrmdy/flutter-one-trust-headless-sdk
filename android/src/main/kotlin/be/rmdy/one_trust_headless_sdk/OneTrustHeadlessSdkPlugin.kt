@@ -65,6 +65,10 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
                 sdkService.acceptAll()
                 return result.success(null)
             }
+            "querySDKConsentStatus" -> {
+                val sdkId:String = call.argument<String>("sDKId")!!
+                return result.success(sdkService.querySDKConsentStatus(sdkId))
+            }
             else -> {
                 result.notImplemented()
             }
