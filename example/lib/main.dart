@@ -15,6 +15,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  String _error;
   OTSDKData _data;
   bool _isLoading = true;
 
@@ -26,27 +27,36 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
+    setState(() {
+      _isLoading = true;
+    });
     OTSDKData data;
+    String error;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
+      await OneTrustHeadlessSdk.init(
+          storageLocation: "cdn.cookielaw.org",
+          domainIdentifier: "f1383ce9-d3ad-4e0d-98bf-6e736846266b-test",
+          languageCode: "en");
       data = await OneTrustHeadlessSdk.oTSDKData;
-      _isLoading = false;
-    } on PlatformException {
-      _isLoading = false;
+    } on PlatformException catch (e) {
+      error = "${e.code} - ${e.message}";
     }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
 
     setState(() {
+      _isLoading = false;
+      _error = error;
       _data = data;
     });
+
+    print(_error);
   }
 
   @override
   Widget build(BuildContext context) {
+    print("rebuild $_error");
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -68,9 +78,9 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: !_isLoading
               ? Container(
-                  child: _data != null
-                      ? ConsentInformationScreen(_data)
-                      : Text("something went wrong"),
+                  child: _error != null
+                      ? Text("Error $_error")
+                      : ConsentInformationScreen(_data),
                 )
               : Text("loading..."),
         ),

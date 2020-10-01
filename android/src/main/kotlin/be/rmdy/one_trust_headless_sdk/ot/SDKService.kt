@@ -11,14 +11,13 @@ class SDKService {
     var initialized = false
     var _sdk:OTPublishersHeadlessSDK? = null
 
-    fun initialize(context: Context, onResult: (Boolean) -> Unit) {
-        if (!initialized) {
+    fun initialize(storageLocation: String, domainIdentifier: String, languageCode: String, context: Context, onResult: (Boolean) -> Unit) {
             _sdk = OTPublishersHeadlessSDK(context)
             val sdkParams = OTSdkParams.SdkParamsBuilder.newInstance()
                     .setAPIVersion("6.6.1")
                     .shouldCreateProfile(true)
                     .build()
-            _sdk!!.initOTSDKData("cdn.cookielaw.org", "f1383ce9-d3ad-4e0d-98bf-6e736846266b-test", "en",
+            _sdk!!.initOTSDKData(storageLocation, domainIdentifier, languageCode,
                     sdkParams,
                     object : OTCallback {
                         override fun onSuccess(response: OTResponse) {
@@ -31,7 +30,6 @@ class SDKService {
                             onResult(false)
                         }
                     })
-        }
     }
 
     fun getOTSDKData(): String {

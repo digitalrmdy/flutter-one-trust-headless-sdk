@@ -29,14 +29,8 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-    if (!sdkService.initialized) {
-      sdkService.initialize(context, object: (Boolean) -> Unit {
-          override fun invoke(success: Boolean) {
-              if (success) {
-                  executeChannels(call, result)
-              }
-          }
-      })
+    if (call.method != "init" && !sdkService.initialized) {
+      result.error("1", "Please call init first", "")
     } else {
         executeChannels(call, result)
     }
@@ -46,6 +40,20 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
         when (call.method) {
             "getPlatformVersion" -> {
                 result.success("Android ${android.os.Build.VERSION.RELEASE}")
+            }
+            "init" -> {
+                val storageLocation:String = call.argument<String>("storageLocation")!!
+                val domainIdentifier:String = call.argument<String>("domainIdentifier")!!
+                val languageCode:String = call.argument<String>("languageCode")!!
+                sdkService.initialize(storageLocation, domainIdentifier, languageCode, context, object: (Boolean) -> Unit {
+                    override fun invoke(success: Boolean) {
+                        if (success) {
+                            result.success(null)
+                        }  else {
+                            result.error("", "Could not init sdk", null)
+                        }
+                    }
+                } )
             }
             "getOTSDKData" -> {
                 return result.success(sdkService.getOTSDKData())

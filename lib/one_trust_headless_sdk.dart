@@ -1,7 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:one_trust_headless_sdk/model/otsdkdata.dart';
+import 'dart:developer' as developer;
+
+/// Error codes:
+/// 1: Please call init first
+///
 
 class OneTrustHeadlessSdk {
   static const MethodChannel _channel =
@@ -12,8 +18,31 @@ class OneTrustHeadlessSdk {
     return version;
   }
 
+  static Future<void> init(
+      {@required String storageLocation,
+      @required String domainIdentifier,
+      @required String languageCode}) async {
+    try {
+      await _channel.invokeMethod<bool>('init', <String, dynamic>{
+        'storageLocation': storageLocation,
+        'domainIdentifier': domainIdentifier,
+        'languageCode': languageCode,
+      });
+    } on PlatformException catch (e) {
+      developer.log('Error during init: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
+  }
+
   static Future<OTSDKData> get oTSDKData async {
-    final String data = await _channel.invokeMethod('getOTSDKData');
-    return OTSDKData(data);
+    try {
+      final String data = await _channel.invokeMethod<String>('getOTSDKData');
+      return OTSDKData(data);
+    } on PlatformException catch (e) {
+      developer.log('Error during get oTSDKData: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
   }
 }
