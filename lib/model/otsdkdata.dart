@@ -112,9 +112,8 @@ class SdkGroup {
 class Sdk {
   final String name;
   final String sdkId;
-  final SdkConsentStatus consentStatus;
 
-  Sdk({@required this.name, @required this.sdkId, this.consentStatus});
+  Sdk({@required this.name, @required this.sdkId});
 }
 
 enum SdkConsentStatus { given, notGiven, notBeenCollected }
