@@ -51,11 +51,33 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Plugin example app'),
+          actions: [
+            Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: _data.data));
+                  },
+                  child: Icon(
+                    Icons.content_copy,
+                    size: 26.0,
+                  ),
+                )),
+          ],
         ),
         body: Center(
           child: !_isLoading
-              ? Text(
-                  'data: ${_data != null ? _data.data : "something went wrong"}')
+              ? Container(
+                  child: _data != null
+                      ? Column(
+                          children: [
+                            if (_data.banner != null)
+                              Text(
+                                  "${_data.banner.showBanner} - ${_data.banner.message} - ${_data.banner.allowAllButtonText} - ${_data.banner.moreInfoButtonText}")
+                          ],
+                        )
+                      : Text("something went wrong"),
+                )
               : Text("loading..."),
         ),
       ),
