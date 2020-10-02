@@ -1,6 +1,7 @@
 package be.rmdy.one_trust_headless_sdk
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.NonNull;
 import be.rmdy.one_trust_headless_sdk.ot.SDKService
 
@@ -9,7 +10,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
 
 /** OneTrustHeadlessSdkPlugin */
 public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
@@ -66,7 +66,7 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
                 return result.success(null)
             }
             "querySDKConsentStatus" -> {
-                val sdkId:String = call.argument<String>("sDKId")!!
+                val sdkId:String = call.argument<String>("sdkId")!!
                 return result.success(sdkService.querySDKConsentStatus(sdkId))
             }
             "updateSdkGroupConsent" -> {
@@ -87,13 +87,28 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
                 sdkService.resetConsentChanges()
                 return result.success(null)
             }
+            "registerSdkListener" -> {
+                val sdkId:String = call.argument<String>("sdkId")!!
+                sdkService.registerSdkListener(sdkId, this::sdkConsentStatusUpdated)
+                return result.success(null)
+            }
+            "clearSdkListeners" -> {
+                sdkService.clearSdkListeners()
+                return result.success(null)
+            }
             else -> {
                 result.notImplemented()
             }
         }
     }
 
+    private fun sdkConsentStatusUpdated(sdkId: String, consentStatus: Int) {
+        Log.i("OTHSP", "sdkConsent for $sdkId to $consentStatus");
+        channel.invokeMethod("sdkConsentStatusUpdated", mapOf("sdkId" to sdkId, "consentStatus" to consentStatus) )
+    }
+
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+      sdkService.clearSdkListeners()
     channel.setMethodCallHandler(null)
   }
 }

@@ -19,9 +19,14 @@ class OneTrustHeadlessSdk {
   }
 
   static Future<void> init(
-      {@required String storageLocation,
-      @required String domainIdentifier,
-      @required String languageCode}) async {
+      {@required
+          String storageLocation,
+      @required
+          String domainIdentifier,
+      @required
+          String languageCode,
+      @required
+          Function(String, SdkConsentStatus) onSdkConsentStatusChanged}) async {
     try {
       await _channel.invokeMethod<bool>('init', <String, dynamic>{
         'storageLocation': storageLocation,
@@ -33,6 +38,23 @@ class OneTrustHeadlessSdk {
           name: 'one_trust_headless_sdk');
       rethrow;
     }
+    _registerMethodCallHandler(onSdkConsentStatusChanged);
+  }
+
+  static void _registerMethodCallHandler(
+      onSdkConsentStatusChanged(
+          String sdkId, SdkConsentStatus sdkConsentStatus)) {
+    _channel.setMethodCallHandler((call) {
+      switch (call.method) {
+        case "sdkConsentStatusUpdated":
+          onSdkConsentStatusChanged(call.arguments["sdkId"],
+              _mapSdkConsentStatus(call.arguments["consentStatus"]));
+          break;
+        default:
+          break;
+      }
+      return;
+    });
   }
 
   static Future<void> acceptAll() async {
@@ -45,11 +67,11 @@ class OneTrustHeadlessSdk {
     }
   }
 
-  static Future<SdkConsentStatus> querySDKConsentStatus(String sDKId) async {
+  static Future<SdkConsentStatus> querySDKConsentStatus(String sdkId) async {
     try {
       var status = await _channel
           .invokeMethod<int>('querySDKConsentStatus', <String, dynamic>{
-        'sDKId': sDKId,
+        'sdkId': sdkId,
       });
       switch (status) {
         case 1:
@@ -89,7 +111,7 @@ class OneTrustHeadlessSdk {
     }
   }
 
-  static Future<PreferencesInfo> get preferenes async {
+  static Future<PreferencesInfo> get preferences async {
     try {
       final String data = await _channel.invokeMethod<String>('getOTSDKData');
       return (await _parseData(data, querySDKConsentStatusForCategory))
@@ -166,6 +188,30 @@ class OneTrustHeadlessSdk {
     }
   }
 
+  static Future<void> registerSdkListener(String sdkId) async {
+    try {
+      await _channel
+          .invokeMethod<bool>('registerSdkListener', <String, dynamic>{
+        'sdkId': sdkId,
+      });
+    } on PlatformException catch (e) {
+      developer.log(
+          'Error during registerSdkListener: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
+  }
+
+  static Future<void> clearSdkListeners() async {
+    try {
+      await _channel.invokeMethod<bool>('clearSdkListeners');
+    } on PlatformException catch (e) {
+      developer.log('Error during clearSdkListeners: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
+  }
+
   static Future<bool> querySDKConsentStatusForCategory(
       String customGroupId) async {
     try {
@@ -195,5 +241,16 @@ class OneTrustHeadlessSdk {
     var preferences = await parsePreferences(
         data, querySDKConsentStatusForCategory, querySDKConsentStatus);
     return OTSdkData(banner, preferences, data);
+  }
+
+  static SdkConsentStatus _mapSdkConsentStatus(int status) {
+    switch (status) {
+      case 1:
+        return SdkConsentStatus.given;
+      case 0:
+        return SdkConsentStatus.notGiven;
+      default:
+        return SdkConsentStatus.notBeenCollected;
+    }
   }
 }

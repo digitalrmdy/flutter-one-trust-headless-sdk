@@ -39,7 +39,12 @@ class _MyAppState extends State<MyApp> {
       await OneTrustHeadlessSdk.init(
           storageLocation: "cdn.cookielaw.org",
           domainIdentifier: "f1383ce9-d3ad-4e0d-98bf-6e736846266b-test",
-          languageCode: "en");
+          languageCode: "en",
+          onSdkConsentStatusChanged: _onSdkConsentStatusChanged);
+      var sdks = await OneTrustHeadlessSdk.sdks;
+      sdks.forEach((sdk) async {
+        await OneTrustHeadlessSdk.registerSdkListener(sdk.sdkId);
+      });
     } on PlatformException catch (e) {
       error = "${e.code} - ${e.message}";
     }
@@ -53,6 +58,12 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  @override
+  void dispose() async {
+    await OneTrustHeadlessSdk.clearSdkListeners();
+    super.dispose();
+  }
+
   _updateData() async {
     setState(() {
       _isLoading = true;
@@ -62,12 +73,11 @@ class _MyAppState extends State<MyApp> {
     bool shouldShowBanner;
     BannerInfo banner;
     PreferencesInfo preferences;
-    Map<String, SdkConsentStatus> consentStatus = {};
     try {
       data = await OneTrustHeadlessSdk.oTSDKData;
       shouldShowBanner = await OneTrustHeadlessSdk.shouldShowBanner;
       banner = await OneTrustHeadlessSdk.banner;
-      preferences = await OneTrustHeadlessSdk.preferenes;
+      preferences = await OneTrustHeadlessSdk.preferences;
     } on PlatformException catch (e) {
       error = "${e.code} - ${e.message}";
     }
@@ -116,6 +126,11 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+
+  void _onSdkConsentStatusChanged(
+      String sdkId, SdkConsentStatus consentStatus) {
+    print("Sdk consentStatus updated for $sdkId to $consentStatus");
   }
 }
 
