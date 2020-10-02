@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 class OTSdkData {
-  final statusAlwaysActive = "always active";
-  final statusActive = "active";
+  static const statusAlwaysActive = "always active";
+  static const statusActive = "active";
 
   final String _data;
   Banner _banner;
@@ -45,11 +45,13 @@ class OTSdkData {
         ).toList();
 
         return SdkGroup(
+          customId: g["CustomGroupId"],
           name: g["GroupName"],
           description: g["GroupDescription"],
           consentGiven:
               g["Status"] == statusAlwaysActive || g["Status"] == statusActive,
           editable: g["Status"] != statusAlwaysActive,
+          statusLabel: _getStatusLabel(g["Status"]),
           sdks: sdks,
         );
       },
@@ -63,6 +65,19 @@ class OTSdkData {
         cookiePreferencesTitle:
             domainData["PreferenceCenterManagePreferencesText"],
         groups: groups);
+  }
+
+  String _getStatusLabel(status) {
+    var json = jsonDecode(_data);
+    var domainData = json["culture"]["DomainData"];
+    switch (status) {
+      case statusAlwaysActive:
+        return domainData["AlwaysActiveText"];
+      case statusActive:
+        return domainData["ActiveText"];
+      default:
+        return "";
+    }
   }
 }
 
@@ -95,17 +110,21 @@ class Preferences {
 }
 
 class SdkGroup {
+  final String customId;
   final String name;
   final String description;
   final bool consentGiven;
   final bool editable;
+  final String statusLabel;
   final List<Sdk> sdks;
 
   SdkGroup(
-      {@required this.name,
+      {@required this.customId,
+      @required this.name,
       @required this.description,
       @required this.consentGiven,
       @required this.editable,
+      @required this.statusLabel,
       @required this.sdks});
 }
 

@@ -188,11 +188,19 @@ class ConsentInformationScreen extends StatelessWidget {
                       SizedBox(
                         height: 8,
                       ),
+                      Text(g.customId),
+                      SizedBox(
+                        height: 8,
+                      ),
                       Text("consent given?  ${g.consentGiven}"),
                       SizedBox(
                         height: 8,
                       ),
                       Text("editable?  ${g.editable}"),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Text("status?  ${g.statusLabel}"),
                       Container(
                         height: 48,
                         child: Center(
