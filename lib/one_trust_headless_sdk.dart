@@ -78,6 +78,43 @@ class OneTrustHeadlessSdk {
     }
   }
 
+  static Future<BannerInfo> get banner async {
+    try {
+      final String data = await _channel.invokeMethod<String>('getOTSDKData');
+      return OTSdkData(data).banner;
+    } on PlatformException catch (e) {
+      developer.log('Error during get banner: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
+  }
+
+  static Future<PreferencesInfo> get preferenes async {
+    try {
+      final String data = await _channel.invokeMethod<String>('getOTSDKData');
+      return OTSdkData(data).preferences;
+    } on PlatformException catch (e) {
+      developer.log('Error during get preferences: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
+  }
+
+  static Future<List<Sdk>> get sdks async {
+    try {
+      final String data = await _channel.invokeMethod<String>('getOTSDKData');
+      return OTSdkData(data)
+          .preferences
+          .groups
+          .expand((group) => group.sdks)
+          .toList();
+    } on PlatformException catch (e) {
+      developer.log('Error during get sdks: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
+  }
+
   static Future<bool> get shouldShowBanner async {
     try {
       return _channel.invokeMethod<bool>('shouldShowBanner');

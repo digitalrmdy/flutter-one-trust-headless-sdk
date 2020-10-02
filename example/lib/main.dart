@@ -17,6 +17,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _error;
   OTSdkData _data;
+  BannerInfo _banner;
+  PreferencesInfo _preferences;
   bool _shouldShowBanner;
   bool _isLoading = true;
   Map<String, SdkConsentStatus> _consentStatus;
@@ -32,9 +34,12 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _isLoading = true;
     });
-    OTSdkData data;
     String error;
+    OTSdkData data;
     bool shouldShowBanner;
+    BannerInfo banner;
+    PreferencesInfo preferences;
+    List<Sdk> sdks;
     Map<String, SdkConsentStatus> consentStatus = {};
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
@@ -42,9 +47,12 @@ class _MyAppState extends State<MyApp> {
           storageLocation: "cdn.cookielaw.org",
           domainIdentifier: "f1383ce9-d3ad-4e0d-98bf-6e736846266b-test",
           languageCode: "en");
-      shouldShowBanner = await OneTrustHeadlessSdk.shouldShowBanner;
       data = await OneTrustHeadlessSdk.oTSDKData;
-      for (var group in data.preferences.groups) {
+      shouldShowBanner = await OneTrustHeadlessSdk.shouldShowBanner;
+      banner = await OneTrustHeadlessSdk.banner;
+      preferences = await OneTrustHeadlessSdk.preferenes;
+      sdks = await OneTrustHeadlessSdk.sdks;
+      for (var group in preferences.groups) {
         for (var sdk in group.sdks) {
           var status =
               await OneTrustHeadlessSdk.querySDKConsentStatus(sdk.sdkId);
@@ -61,6 +69,8 @@ class _MyAppState extends State<MyApp> {
       _isLoading = false;
       _error = error;
       _data = data;
+      _banner = banner;
+      _preferences = preferences;
       _shouldShowBanner = shouldShowBanner;
       _consentStatus = consentStatus;
     });
@@ -91,8 +101,8 @@ class _MyAppState extends State<MyApp> {
               ? Container(
                   child: _error != null
                       ? Text("Error $_error")
-                      : ConsentInformationScreen(
-                          _data, _shouldShowBanner, _consentStatus),
+                      : ConsentInformationScreen(_banner, _preferences,
+                          _shouldShowBanner, _consentStatus),
                 )
               : Text("loading..."),
         ),
@@ -102,12 +112,13 @@ class _MyAppState extends State<MyApp> {
 }
 
 class ConsentInformationScreen extends StatelessWidget {
-  final OTSdkData data;
+  final BannerInfo banner;
+  final PreferencesInfo preferences;
   final bool shouldShowBanner;
   final Map<String, SdkConsentStatus> _consentStatus;
 
-  ConsentInformationScreen(
-      this.data, this.shouldShowBanner, this._consentStatus);
+  ConsentInformationScreen(this.banner, this.preferences, this.shouldShowBanner,
+      this._consentStatus);
 
   @override
   Widget build(BuildContext context) {
@@ -128,15 +139,15 @@ class ConsentInformationScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(data.banner.message),
+              Text(banner.message),
               MaterialButton(
                 color: Colors.green,
                 onPressed: () {
                   OneTrustHeadlessSdk.acceptAll();
                 },
-                child: Text(data.banner.allowAllButtonText),
+                child: Text(banner.allowAllButtonText),
               ),
-              Text("more info button:  ${data.banner.moreInfoButtonText}"),
+              Text("more info button:  ${banner.moreInfoButtonText}"),
               Text("show banner? $shouldShowBanner"),
             ],
           ),
@@ -156,13 +167,12 @@ class ConsentInformationScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(data.preferences.title),
-              Text(data.preferences.message),
+              Text(preferences.title),
+              Text(preferences.message),
+              Text("accept all button:  ${preferences.acceptAllButtonText}"),
+              Text(preferences.cookiePreferencesTitle),
               Text(
-                  "accept all button:  ${data.preferences.acceptAllButtonText}"),
-              Text(data.preferences.cookiePreferencesTitle),
-              Text(
-                  "save choices button:  ${data.preferences.saveChoicesButtonText}"),
+                  "save choices button:  ${preferences.saveChoicesButtonText}"),
               Container(
                 height: 32,
                 child: Center(
@@ -172,7 +182,7 @@ class ConsentInformationScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              ...data.preferences.groups.map(
+              ...preferences.groups.map(
                 (g) => Container(
                   margin: EdgeInsets.all(8),
                   padding: EdgeInsets.all(16),

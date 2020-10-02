@@ -7,8 +7,8 @@ class OTSdkData {
   static const statusActive = "active";
 
   final String _data;
-  Banner _banner;
-  Preferences _preferences;
+  BannerInfo _banner;
+  PreferencesInfo _preferences;
 
   OTSdkData(this._data) {
     _banner = parseBanner();
@@ -16,19 +16,19 @@ class OTSdkData {
   }
 
   String get data => _data;
-  Banner get banner => _banner;
-  Preferences get preferences => _preferences;
+  BannerInfo get banner => _banner;
+  PreferencesInfo get preferences => _preferences;
 
-  Banner parseBanner() {
+  BannerInfo parseBanner() {
     var json = jsonDecode(_data);
     var domainData = json["culture"]["DomainData"];
-    return Banner(
+    return BannerInfo(
         message: domainData["AlertNoticeText"],
         allowAllButtonText: domainData["AlertAllowCookiesText"],
         moreInfoButtonText: domainData["AlertMoreInfoText"]);
   }
 
-  Preferences parsePreferences() {
+  PreferencesInfo parsePreferences() {
     var json = jsonDecode(_data);
     var domainData = json["culture"]["DomainData"];
     List<SdkGroup> groups = (domainData["Groups"] as List)
@@ -57,7 +57,7 @@ class OTSdkData {
       },
     ).toList();
 
-    return Preferences(
+    return PreferencesInfo(
         title: domainData["MainText"],
         message: domainData["MainInfoText"],
         acceptAllButtonText: domainData["ConfirmText"],
@@ -81,18 +81,18 @@ class OTSdkData {
   }
 }
 
-class Banner {
+class BannerInfo {
   final String message;
   final String allowAllButtonText;
   final String moreInfoButtonText;
 
-  Banner(
+  BannerInfo(
       {@required this.message,
       @required this.allowAllButtonText,
       @required this.moreInfoButtonText});
 }
 
-class Preferences {
+class PreferencesInfo {
   final String title;
   final String message;
   final String acceptAllButtonText;
@@ -100,7 +100,7 @@ class Preferences {
   final String cookiePreferencesTitle;
   final List<SdkGroup> groups;
 
-  Preferences(
+  PreferencesInfo(
       {@required this.title,
       @required this.message,
       @required this.acceptAllButtonText,
