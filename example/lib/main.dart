@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('One Trust Headless SDK'),
           actions: [
             Padding(
                 padding: EdgeInsets.only(right: 20.0),
@@ -115,76 +115,123 @@ class ConsentInformationScreen extends StatelessWidget {
       children: [
         Container(
           color: Colors.grey,
-          height: 32,
-          child: Center(
-            child: Text("BANNER"),
-          ),
-        ),
-        Text(data.banner.message),
-        MaterialButton(
-          color: Colors.green,
-          onPressed: () {
-            OneTrustHeadlessSdk.acceptAll();
-          },
-          child: Text(data.banner.allowAllButtonText),
-        ),
-        Text("more info button:  ${data.banner.moreInfoButtonText}"),
-        Text("show banner? $shouldShowBanner"),
-        Container(
-          color: Colors.grey,
-          height: 32,
-          child: Center(
-            child: Text("PREFERENCES"),
-          ),
-        ),
-        Text(data.preferences.title),
-        Text(data.preferences.message),
-        Text("accept all button:  ${data.preferences.acceptAllButtonText}"),
-        Text(data.preferences.cookiePreferencesTitle),
-        Text("save choices button:  ${data.preferences.saveChoicesButtonText}"),
-        Container(
-          color: Colors.grey,
-          height: 32,
-          child: Center(
-            child: Text("SDK GROUPS"),
-          ),
-        ),
-        ...data.preferences.groups.map(
-          (g) => Column(
+          margin: EdgeInsets.all(8),
+          padding: EdgeInsets.all(16),
+          child: Column(
             children: [
-              Text(g.name),
-              Text(g.description),
-              Text("consent given?  ${g.consentGiven}"),
-              Text("editable?  ${g.editable}"),
               Container(
-                color: Colors.grey,
-                height: 16,
+                height: 32,
                 child: Center(
-                  child: Text("SDKs"),
+                  child: Text(
+                    "Banner",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
-              ...g.sdks.map(
-                (s) {
-                  return Column(
-                    children: [
-                      Text(s.name),
-                      Text(s.sdkId),
-                      Text("consent? ${_consentStatus[s.sdkId]}"),
-                      Container(
-                        color: Colors.grey,
-                        height: 8,
-                      )
-                    ],
-                  );
+              Text(data.banner.message),
+              MaterialButton(
+                color: Colors.green,
+                onPressed: () {
+                  OneTrustHeadlessSdk.acceptAll();
                 },
+                child: Text(data.banner.allowAllButtonText),
               ),
+              Text("more info button:  ${data.banner.moreInfoButtonText}"),
+              Text("show banner? $shouldShowBanner"),
+            ],
+          ),
+        ),
+        Container(
+          color: Colors.grey,
+          margin: EdgeInsets.all(8),
+          padding: EdgeInsets.all(16),
+          child: Column(
+            children: [
               Container(
-                color: Colors.grey,
-                height: 16,
+                height: 32,
+                child: Center(
+                  child: Text(
+                    "Preferences",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              Text(data.preferences.title),
+              Text(data.preferences.message),
+              Text(
+                  "accept all button:  ${data.preferences.acceptAllButtonText}"),
+              Text(data.preferences.cookiePreferencesTitle),
+              Text(
+                  "save choices button:  ${data.preferences.saveChoicesButtonText}"),
+              Container(
+                height: 32,
+                child: Center(
+                  child: Text(
+                    "SDK Groups",
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              ...data.preferences.groups.map(
+                (g) => Container(
+                  margin: EdgeInsets.all(8),
+                  padding: EdgeInsets.all(16),
+                  color: Colors.blueGrey,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(g.name,
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      Text(g.description),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Text("consent given?  ${g.consentGiven}"),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Text("editable?  ${g.editable}"),
+                      Container(
+                        height: 48,
+                        child: Center(
+                          child: Text(
+                            "included SDKs",
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      ...g.sdks.map(
+                        (s) {
+                          return Container(
+                            margin: EdgeInsets.all(8),
+                            padding: EdgeInsets.all(16),
+                            color: Colors.blue,
+                            child: Column(
+                              children: [
+                                Text(s.name),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                Text(s.sdkId),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                Text("consent? ${_consentStatus[s.sdkId]}"),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               )
             ],
           ),
-        )
+        ),
       ],
     );
   }
