@@ -21,7 +21,6 @@ class _MyAppState extends State<MyApp> {
   PreferencesInfo _preferences;
   bool _shouldShowBanner;
   bool _isLoading = true;
-  Map<String, SdkConsentStatus> _consentStatus;
 
   @override
   void initState() {
@@ -63,21 +62,12 @@ class _MyAppState extends State<MyApp> {
     bool shouldShowBanner;
     BannerInfo banner;
     PreferencesInfo preferences;
-    List<Sdk> sdks;
     Map<String, SdkConsentStatus> consentStatus = {};
     try {
       data = await OneTrustHeadlessSdk.oTSDKData;
       shouldShowBanner = await OneTrustHeadlessSdk.shouldShowBanner;
       banner = await OneTrustHeadlessSdk.banner;
       preferences = await OneTrustHeadlessSdk.preferenes;
-      sdks = await OneTrustHeadlessSdk.sdks;
-      for (var group in preferences.groups) {
-        for (var sdk in group.sdks) {
-          var status =
-              await OneTrustHeadlessSdk.querySDKConsentStatus(sdk.sdkId);
-          consentStatus[sdk.sdkId] = status;
-        }
-      }
     } on PlatformException catch (e) {
       error = "${e.code} - ${e.message}";
     }
@@ -91,7 +81,6 @@ class _MyAppState extends State<MyApp> {
       _banner = banner;
       _preferences = preferences;
       _shouldShowBanner = shouldShowBanner;
-      _consentStatus = consentStatus;
     });
   }
 
@@ -121,7 +110,7 @@ class _MyAppState extends State<MyApp> {
                   child: _error != null
                       ? Text("Error $_error")
                       : ConsentInformationScreen(_banner, _preferences,
-                          _shouldShowBanner, _consentStatus, _updateData),
+                          _shouldShowBanner, _updateData),
                 )
               : Text("loading..."),
         ),
@@ -134,11 +123,10 @@ class ConsentInformationScreen extends StatelessWidget {
   final BannerInfo banner;
   final PreferencesInfo preferences;
   final bool shouldShowBanner;
-  final Map<String, SdkConsentStatus> _consentStatus;
   final Function update;
 
-  ConsentInformationScreen(this.banner, this.preferences, this.shouldShowBanner,
-      this._consentStatus, this.update);
+  ConsentInformationScreen(
+      this.banner, this.preferences, this.shouldShowBanner, this.update);
 
   @override
   Widget build(BuildContext context) {
@@ -264,7 +252,7 @@ class ConsentInformationScreen extends StatelessWidget {
                                 SizedBox(
                                   height: 8,
                                 ),
-                                Text("consent? ${_consentStatus[s.sdkId]}"),
+                                Text("${s.consentStatus}"),
                               ],
                             ),
                           );

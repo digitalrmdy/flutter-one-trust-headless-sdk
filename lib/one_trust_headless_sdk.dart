@@ -192,8 +192,8 @@ class OneTrustHeadlessSdk {
       Future<bool> Function(String customGroupId)
           querySDKConsentStatusForCategory) async {
     var banner = parseBanner(data);
-    var preferences =
-        await parsePreferences(data, querySDKConsentStatusForCategory);
+    var preferences = await parsePreferences(
+        data, querySDKConsentStatusForCategory, querySDKConsentStatus);
     return OTSdkData(banner, preferences, data);
   }
 }

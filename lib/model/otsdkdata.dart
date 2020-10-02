@@ -63,8 +63,12 @@ class SdkGroup {
 class Sdk {
   final String name;
   final String sdkId;
+  final SdkConsentStatus consentStatus;
 
-  Sdk({@required this.name, @required this.sdkId});
+  Sdk(
+      {@required this.name,
+      @required this.sdkId,
+      @required this.consentStatus});
 }
 
 enum SdkConsentStatus { given, notGiven, notBeenCollected }
@@ -81,21 +85,23 @@ BannerInfo parseBanner(_data) {
 Future<PreferencesInfo> parsePreferences(
     _data,
     Future<bool> Function(String customGroupId)
-        querySDKConsentStatusForCategory) async {
+        querySDKConsentStatusForCategory,
+    Future<SdkConsentStatus> Function(String sdkId)
+        querySDKConsentStatus) async {
   var json = jsonDecode(_data);
   var domainData = json["culture"]["DomainData"];
   List<SdkGroup> groups = await Future.wait((domainData["Groups"] as List)
       .where((g) => (g["FirstPartyCookies"] as List).isNotEmpty)
       .map(
     (g) async {
-      List<Sdk> sdks = (g["FirstPartyCookies"] as List).map(
-        (s) {
-          return Sdk(
-            name: s["Name"],
-            sdkId: s["SdkId"],
-          );
+      List<Sdk> sdks = await Future.wait((g["FirstPartyCookies"] as List).map(
+        (s) async {
+          var sdkId = s["SdkId"];
+          var status = await querySDKConsentStatus(sdkId);
+          return Sdk(name: s["Name"], sdkId: sdkId, consentStatus: status);
         },
-      ).toList();
+      ).toList());
+
       var customGroupId = g["CustomGroupId"];
       var groupConsentStatus =
           await querySDKConsentStatusForCategory(customGroupId);
