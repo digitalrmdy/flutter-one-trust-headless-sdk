@@ -1,6 +1,7 @@
 package be.rmdy.one_trust_headless_sdk.ot
 
 import android.content.Context
+import android.util.Log
 import com.onetrust.otpublishers.headless.Public.DataModel.OTSdkParams
 import com.onetrust.otpublishers.headless.Public.OTCallback;
 import com.onetrust.otpublishers.headless.Public.OTPublishersHeadlessSDK;
@@ -46,5 +47,23 @@ class SDKService {
 
     fun querySDKConsentStatus(sDKId: String): Int {
         return _sdk?.getConsentStatusForSDKId(sDKId) ?: -1
+    }
+
+    fun querySDKConsentStatusForCategory(customGroupId: String): Int {
+        return _sdk?.getConsentStatusForGroupId(customGroupId) ?: -1
+    }
+
+    fun updateSdkGroupConsent(customGroupId: String, consentGiven: Boolean){
+        _sdk?.updatePurposeConsent(customGroupId, consentGiven)
+        _sdk?.saveConsentValueForCategory();
+        _sdk?.resetUpdatedConsent();
+    }
+
+    fun confirmConsentChanges(){
+        _sdk?.saveConsentValueForCategory();
+    }
+
+    fun resetConsentChanges(){
+        _sdk?.resetUpdatedConsent();
     }
 }

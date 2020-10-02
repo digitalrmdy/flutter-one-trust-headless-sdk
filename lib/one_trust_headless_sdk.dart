@@ -70,7 +70,7 @@ class OneTrustHeadlessSdk {
   static Future<OTSdkData> get oTSDKData async {
     try {
       final String data = await _channel.invokeMethod<String>('getOTSDKData');
-      return OTSdkData(data);
+      return _parseData(data, querySDKConsentStatusForCategory);
     } on PlatformException catch (e) {
       developer.log('Error during get oTSDKData: ${e.code} - ${e.message}',
           name: 'one_trust_headless_sdk');
@@ -81,7 +81,7 @@ class OneTrustHeadlessSdk {
   static Future<BannerInfo> get banner async {
     try {
       final String data = await _channel.invokeMethod<String>('getOTSDKData');
-      return OTSdkData(data).banner;
+      return (await _parseData(data, querySDKConsentStatusForCategory)).banner;
     } on PlatformException catch (e) {
       developer.log('Error during get banner: ${e.code} - ${e.message}',
           name: 'one_trust_headless_sdk');
@@ -92,7 +92,8 @@ class OneTrustHeadlessSdk {
   static Future<PreferencesInfo> get preferenes async {
     try {
       final String data = await _channel.invokeMethod<String>('getOTSDKData');
-      return OTSdkData(data).preferences;
+      return (await _parseData(data, querySDKConsentStatusForCategory))
+          .preferences;
     } on PlatformException catch (e) {
       developer.log('Error during get preferences: ${e.code} - ${e.message}',
           name: 'one_trust_headless_sdk');
@@ -103,7 +104,7 @@ class OneTrustHeadlessSdk {
   static Future<List<Sdk>> get sdks async {
     try {
       final String data = await _channel.invokeMethod<String>('getOTSDKData');
-      return OTSdkData(data)
+      return (await _parseData(data, querySDKConsentStatusForCategory))
           .preferences
           .groups
           .expand((group) => group.sdks)
@@ -124,5 +125,75 @@ class OneTrustHeadlessSdk {
           name: 'one_trust_headless_sdk');
       rethrow;
     }
+  }
+
+  static Future<void> updateSdkGroupConsent(
+      String customGroupId, bool consentGiven) async {
+    debugPrint("updating consent for $customGroupId to $consentGiven");
+    try {
+      await _channel
+          .invokeMethod<bool>('updateSdkGroupConsent', <String, dynamic>{
+        'customGroupId': customGroupId,
+        'consentGiven': consentGiven,
+      });
+    } on PlatformException catch (e) {
+      developer.log(
+          'Error during updateSdkGroupConsent: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
+  }
+
+  static Future<void> confirmConsentChanges() async {
+    try {
+      await _channel.invokeMethod<bool>('confirmConsentChanges');
+    } on PlatformException catch (e) {
+      developer.log(
+          'Error during confirmConsentChanges: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
+  }
+
+  static Future<void> resetConsentChanges() async {
+    try {
+      await _channel.invokeMethod<bool>('resetConsentChanges');
+    } on PlatformException catch (e) {
+      developer.log(
+          'Error during resetConsentChanges: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
+  }
+
+  static Future<bool> querySDKConsentStatusForCategory(
+      String customGroupId) async {
+    try {
+      var status = await _channel.invokeMethod<int>(
+          'querySDKConsentStatusForCategory', <String, dynamic>{
+        'customGroupId': customGroupId,
+      });
+      switch (status) {
+        case 1:
+          return true;
+        default:
+          return false;
+      }
+    } on PlatformException catch (e) {
+      developer.log(
+          'Error during querySDKConsentStatusForCategory: ${e.code} - ${e.message}',
+          name: 'one_trust_headless_sdk');
+      rethrow;
+    }
+  }
+
+  static Future<OTSdkData> _parseData(
+      String data,
+      Future<bool> Function(String customGroupId)
+          querySDKConsentStatusForCategory) async {
+    var banner = parseBanner(data);
+    var preferences =
+        await parsePreferences(data, querySDKConsentStatusForCategory);
+    return OTSdkData(banner, preferences, data);
   }
 }

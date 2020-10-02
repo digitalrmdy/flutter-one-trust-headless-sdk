@@ -69,6 +69,24 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
                 val sdkId:String = call.argument<String>("sDKId")!!
                 return result.success(sdkService.querySDKConsentStatus(sdkId))
             }
+            "updateSdkGroupConsent" -> {
+                val customGroupId:String = call.argument<String>("customGroupId")!!
+                val consentGiven:Boolean = call.argument<Boolean>("consentGiven")!!
+                sdkService.updateSdkGroupConsent(customGroupId, consentGiven)
+                result.success(null)
+            }
+            "querySDKConsentStatusForCategory" -> {
+                val customGroupId:String = call.argument<String>("customGroupId")!!
+                return result.success(sdkService.querySDKConsentStatusForCategory(customGroupId))
+            }
+            "confirmConsentChanges" -> {
+                sdkService.confirmConsentChanges()
+                return result.success(null)
+            }
+            "resetConsentChanges" -> {
+                sdkService.resetConsentChanges()
+                return result.success(null)
+            }
             else -> {
                 result.notImplemented()
             }

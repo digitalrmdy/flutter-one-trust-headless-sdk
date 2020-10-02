@@ -6,79 +6,11 @@ class OTSdkData {
   static const statusAlwaysActive = "always active";
   static const statusActive = "active";
 
-  final String _data;
-  BannerInfo _banner;
-  PreferencesInfo _preferences;
+  String data;
+  BannerInfo banner;
+  PreferencesInfo preferences;
 
-  OTSdkData(this._data) {
-    _banner = parseBanner();
-    _preferences = parsePreferences();
-  }
-
-  String get data => _data;
-  BannerInfo get banner => _banner;
-  PreferencesInfo get preferences => _preferences;
-
-  BannerInfo parseBanner() {
-    var json = jsonDecode(_data);
-    var domainData = json["culture"]["DomainData"];
-    return BannerInfo(
-        message: domainData["AlertNoticeText"],
-        allowAllButtonText: domainData["AlertAllowCookiesText"],
-        moreInfoButtonText: domainData["AlertMoreInfoText"]);
-  }
-
-  PreferencesInfo parsePreferences() {
-    var json = jsonDecode(_data);
-    var domainData = json["culture"]["DomainData"];
-    List<SdkGroup> groups = (domainData["Groups"] as List)
-        .where((g) => (g["FirstPartyCookies"] as List).isNotEmpty)
-        .map(
-      (g) {
-        List<Sdk> sdks = (g["FirstPartyCookies"] as List).map(
-          (s) {
-            return Sdk(
-              name: s["Name"],
-              sdkId: s["SdkId"],
-            );
-          },
-        ).toList();
-
-        return SdkGroup(
-          customId: g["CustomGroupId"],
-          name: g["GroupName"],
-          description: g["GroupDescription"],
-          consentGiven:
-              g["Status"] == statusAlwaysActive || g["Status"] == statusActive,
-          editable: g["Status"] != statusAlwaysActive,
-          statusLabel: _getStatusLabel(g["Status"]),
-          sdks: sdks,
-        );
-      },
-    ).toList();
-
-    return PreferencesInfo(
-        title: domainData["MainText"],
-        message: domainData["MainInfoText"],
-        acceptAllButtonText: domainData["ConfirmText"],
-        saveChoicesButtonText: domainData["PreferenceCenterConfirmText"],
-        cookiePreferencesTitle:
-            domainData["PreferenceCenterManagePreferencesText"],
-        groups: groups);
-  }
-
-  String _getStatusLabel(status) {
-    var json = jsonDecode(_data);
-    var domainData = json["culture"]["DomainData"];
-    switch (status) {
-      case statusAlwaysActive:
-        return domainData["AlwaysActiveText"];
-      case statusActive:
-        return domainData["ActiveText"];
-      default:
-        return "";
-    }
-  }
+  OTSdkData(this.banner, this.preferences, this.data);
 }
 
 class BannerInfo {
@@ -136,3 +68,69 @@ class Sdk {
 }
 
 enum SdkConsentStatus { given, notGiven, notBeenCollected }
+
+BannerInfo parseBanner(_data) {
+  var json = jsonDecode(_data);
+  var domainData = json["culture"]["DomainData"];
+  return BannerInfo(
+      message: domainData["AlertNoticeText"],
+      allowAllButtonText: domainData["AlertAllowCookiesText"],
+      moreInfoButtonText: domainData["AlertMoreInfoText"]);
+}
+
+Future<PreferencesInfo> parsePreferences(
+    _data,
+    Future<bool> Function(String customGroupId)
+        querySDKConsentStatusForCategory) async {
+  var json = jsonDecode(_data);
+  var domainData = json["culture"]["DomainData"];
+  List<SdkGroup> groups = await Future.wait((domainData["Groups"] as List)
+      .where((g) => (g["FirstPartyCookies"] as List).isNotEmpty)
+      .map(
+    (g) async {
+      List<Sdk> sdks = (g["FirstPartyCookies"] as List).map(
+        (s) {
+          return Sdk(
+            name: s["Name"],
+            sdkId: s["SdkId"],
+          );
+        },
+      ).toList();
+      var customGroupId = g["CustomGroupId"];
+      var groupConsentStatus =
+          await querySDKConsentStatusForCategory(customGroupId);
+
+      return SdkGroup(
+        customId: customGroupId,
+        name: g["GroupName"],
+        description: g["GroupDescription"],
+        consentGiven: groupConsentStatus,
+        editable: g["Status"] != OTSdkData.statusAlwaysActive,
+        statusLabel: getStatusLabel(g["Status"], _data),
+        sdks: sdks,
+      );
+    },
+  ).toList());
+
+  return PreferencesInfo(
+      title: domainData["MainText"],
+      message: domainData["MainInfoText"],
+      acceptAllButtonText: domainData["ConfirmText"],
+      saveChoicesButtonText: domainData["PreferenceCenterConfirmText"],
+      cookiePreferencesTitle:
+          domainData["PreferenceCenterManagePreferencesText"],
+      groups: groups);
+}
+
+String getStatusLabel(status, _data) {
+  var json = jsonDecode(_data);
+  var domainData = json["culture"]["DomainData"];
+  switch (status) {
+    case OTSdkData.statusAlwaysActive:
+      return domainData["AlwaysActiveText"];
+    case OTSdkData.statusActive:
+      return domainData["ActiveText"];
+    default:
+      return "";
+  }
+}

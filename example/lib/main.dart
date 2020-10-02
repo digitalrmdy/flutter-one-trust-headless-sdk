@@ -35,18 +35,37 @@ class _MyAppState extends State<MyApp> {
       _isLoading = true;
     });
     String error;
-    OTSdkData data;
-    bool shouldShowBanner;
-    BannerInfo banner;
-    PreferencesInfo preferences;
-    List<Sdk> sdks;
-    Map<String, SdkConsentStatus> consentStatus = {};
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       await OneTrustHeadlessSdk.init(
           storageLocation: "cdn.cookielaw.org",
           domainIdentifier: "f1383ce9-d3ad-4e0d-98bf-6e736846266b-test",
           languageCode: "en");
+    } on PlatformException catch (e) {
+      error = "${e.code} - ${e.message}";
+    }
+    await _updateData();
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
+      _error = error;
+    });
+  }
+
+  _updateData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String error;
+    OTSdkData data;
+    bool shouldShowBanner;
+    BannerInfo banner;
+    PreferencesInfo preferences;
+    List<Sdk> sdks;
+    Map<String, SdkConsentStatus> consentStatus = {};
+    try {
       data = await OneTrustHeadlessSdk.oTSDKData;
       shouldShowBanner = await OneTrustHeadlessSdk.shouldShowBanner;
       banner = await OneTrustHeadlessSdk.banner;
@@ -102,7 +121,7 @@ class _MyAppState extends State<MyApp> {
                   child: _error != null
                       ? Text("Error $_error")
                       : ConsentInformationScreen(_banner, _preferences,
-                          _shouldShowBanner, _consentStatus),
+                          _shouldShowBanner, _consentStatus, _updateData),
                 )
               : Text("loading..."),
         ),
@@ -116,9 +135,10 @@ class ConsentInformationScreen extends StatelessWidget {
   final PreferencesInfo preferences;
   final bool shouldShowBanner;
   final Map<String, SdkConsentStatus> _consentStatus;
+  final Function update;
 
   ConsentInformationScreen(this.banner, this.preferences, this.shouldShowBanner,
-      this._consentStatus);
+      this._consentStatus, this.update);
 
   @override
   Widget build(BuildContext context) {
@@ -142,8 +162,9 @@ class ConsentInformationScreen extends StatelessWidget {
               Text(banner.message),
               MaterialButton(
                 color: Colors.green,
-                onPressed: () {
+                onPressed: () async {
                   OneTrustHeadlessSdk.acceptAll();
+                  await update();
                 },
                 child: Text(banner.allowAllButtonText),
               ),
@@ -202,15 +223,21 @@ class ConsentInformationScreen extends StatelessWidget {
                       SizedBox(
                         height: 8,
                       ),
-                      Text("consent given?  ${g.consentGiven}"),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Text("editable?  ${g.editable}"),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Text("status?  ${g.statusLabel}"),
+                      if (g.editable)
+                        MaterialButton(
+                          onPressed: () async {
+                            await OneTrustHeadlessSdk.updateSdkGroupConsent(
+                                g.customId, !g.consentGiven);
+                            await OneTrustHeadlessSdk.confirmConsentChanges();
+                            await update();
+                          },
+                          color: Colors.blue,
+                          child: Text(g.consentGiven
+                              ? "disable consent"
+                              : "enable consent"),
+                        )
+                      else
+                        Text("${g.statusLabel}"),
                       Container(
                         height: 48,
                         child: Center(
