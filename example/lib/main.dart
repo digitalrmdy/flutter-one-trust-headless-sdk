@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:one_trust_headless_sdk/one_trust_headless_sdk.dart';
 import 'package:one_trust_headless_sdk/model/otsdkdata.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 void main() {
   runApp(MyApp());
@@ -52,7 +53,16 @@ class _MyAppState extends State<MyApp> {
           onSdkConsentStatusChanged:
               (String sdkId, SdkConsentStatus consentStatus) {
             print(
-                "Sdk consentStatus updated for the last $sdkId to $consentStatus");
+                "Sdk consentStatus updated for $sdkId to $consentStatus in a specific listener");
+            Fluttertoast.showToast(
+                msg:
+                    "consentStatus updated for $sdkId to $consentStatus in a specific listener",
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.SNACKBAR,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16.0);
           });
     } on PlatformException catch (e) {
       error = "${e.code} - ${e.message}";
@@ -140,6 +150,14 @@ class _MyAppState extends State<MyApp> {
   void _onSdkConsentStatusChanged(
       String sdkId, SdkConsentStatus consentStatus) {
     print("Sdk consentStatus updated for first $sdkId to $consentStatus");
+    Fluttertoast.showToast(
+        msg: "consentStatus updated for $sdkId to $consentStatus",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.SNACKBAR,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
   }
 }
 
