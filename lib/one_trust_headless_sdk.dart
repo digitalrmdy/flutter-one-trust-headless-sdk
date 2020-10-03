@@ -13,20 +13,17 @@ class OneTrustHeadlessSdk {
   static const MethodChannel _channel =
       const MethodChannel('one_trust_headless_sdk');
 
+  static Map<String, Function(String, SdkConsentStatus)> _listeners = {};
+
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
 
   static Future<void> init(
-      {@required
-          String storageLocation,
-      @required
-          String domainIdentifier,
-      @required
-          String languageCode,
-      @required
-          Function(String, SdkConsentStatus) onSdkConsentStatusChanged}) async {
+      {@required String storageLocation,
+      @required String domainIdentifier,
+      @required String languageCode}) async {
     try {
       await _channel.invokeMethod<bool>('init', <String, dynamic>{
         'storageLocation': storageLocation,
@@ -38,17 +35,20 @@ class OneTrustHeadlessSdk {
           name: 'one_trust_headless_sdk');
       rethrow;
     }
-    _registerMethodCallHandler(onSdkConsentStatusChanged);
+    _registerMethodCallHandler();
   }
 
-  static void _registerMethodCallHandler(
-      onSdkConsentStatusChanged(
-          String sdkId, SdkConsentStatus sdkConsentStatus)) {
+  static void _registerMethodCallHandler() {
     _channel.setMethodCallHandler((call) {
       switch (call.method) {
         case "sdkConsentStatusUpdated":
-          onSdkConsentStatusChanged(call.arguments["sdkId"],
-              _mapSdkConsentStatus(call.arguments["consentStatus"]));
+          {
+            var listener = _listeners[call.arguments["sdkId"]];
+            if (listener != null) {
+              listener(call.arguments["sdkId"],
+                  _mapSdkConsentStatus(call.arguments["consentStatus"]));
+            }
+          }
           break;
         default:
           break;
@@ -188,12 +188,17 @@ class OneTrustHeadlessSdk {
     }
   }
 
-  static Future<void> registerSdkListener(String sdkId) async {
+  static Future<void> registerSdkListener(
+      {@required
+          String sdkId,
+      @required
+          Function(String, SdkConsentStatus) onSdkConsentStatusChanged}) async {
     try {
       await _channel
           .invokeMethod<bool>('registerSdkListener', <String, dynamic>{
         'sdkId': sdkId,
       });
+      _listeners[sdkId] = onSdkConsentStatusChanged;
     } on PlatformException catch (e) {
       developer.log(
           'Error during registerSdkListener: ${e.code} - ${e.message}',
@@ -205,6 +210,7 @@ class OneTrustHeadlessSdk {
   static Future<void> clearSdkListeners() async {
     try {
       await _channel.invokeMethod<bool>('clearSdkListeners');
+      _listeners.clear();
     } on PlatformException catch (e) {
       developer.log('Error during clearSdkListeners: ${e.code} - ${e.message}',
           name: 'one_trust_headless_sdk');

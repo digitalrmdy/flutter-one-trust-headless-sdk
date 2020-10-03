@@ -73,12 +73,17 @@ class SDKService {
     }
 
     fun registerSdkListener(sdkId: String, onSdkConsentStatusUpdated: (String, Int) -> Unit) {
+        if (receivers[sdkId] != null) {
+            context?.unregisterReceiver(receivers[sdkId])
+            receivers.remove(sdkId)
+            Log.i("OTHSP", "Unregistered previous BroadcastReceiver for $sdkId ")
+        }
+        val filter = IntentFilter(sdkId)
         var broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 onSdkConsentStatusUpdated(intent.action!!, intent.getIntExtra("OTT_EVENT_STATUS", -1))
             }
         }
-        val filter = IntentFilter(sdkId)
         context?.registerReceiver(broadcastReceiver, filter)
         receivers[sdkId] = broadcastReceiver
         Log.i("OTHSP", "Registered BroadcastReceiver for $sdkId ")

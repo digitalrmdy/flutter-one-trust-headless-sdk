@@ -37,14 +37,23 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       await OneTrustHeadlessSdk.init(
-          storageLocation: "cdn.cookielaw.org",
-          domainIdentifier: "f1383ce9-d3ad-4e0d-98bf-6e736846266b-test",
-          languageCode: "en",
-          onSdkConsentStatusChanged: _onSdkConsentStatusChanged);
+        storageLocation: "cdn.cookielaw.org",
+        domainIdentifier: "f1383ce9-d3ad-4e0d-98bf-6e736846266b-test",
+        languageCode: "en",
+      );
       var sdks = await OneTrustHeadlessSdk.sdks;
       sdks.forEach((sdk) async {
-        await OneTrustHeadlessSdk.registerSdkListener(sdk.sdkId);
+        await OneTrustHeadlessSdk.registerSdkListener(
+            sdkId: sdk.sdkId,
+            onSdkConsentStatusChanged: _onSdkConsentStatusChanged);
       });
+      await OneTrustHeadlessSdk.registerSdkListener(
+          sdkId: sdks.last.sdkId,
+          onSdkConsentStatusChanged:
+              (String sdkId, SdkConsentStatus consentStatus) {
+            print(
+                "Sdk consentStatus updated for the last $sdkId to $consentStatus");
+          });
     } on PlatformException catch (e) {
       error = "${e.code} - ${e.message}";
     }
@@ -130,7 +139,7 @@ class _MyAppState extends State<MyApp> {
 
   void _onSdkConsentStatusChanged(
       String sdkId, SdkConsentStatus consentStatus) {
-    print("Sdk consentStatus updated for $sdkId to $consentStatus");
+    print("Sdk consentStatus updated for first $sdkId to $consentStatus");
   }
 }
 
