@@ -1,7 +1,8 @@
 import Flutter
 import UIKit
+import OTPublishersHeadlessSDK
 
-public class SwiftOneTrustHeadlessSdkPlugin: NSObject, FlutterPlugin {
+public class SwiftOneTrustHeadlessSdkPlugin: NSObject {
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "one_trust_headless_sdk", binaryMessenger: registrar.messenger())
     let instance = SwiftOneTrustHeadlessSdkPlugin()
@@ -9,9 +10,9 @@ public class SwiftOneTrustHeadlessSdkPlugin: NSObject, FlutterPlugin {
   }
 }
 
-extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
+extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {x
     private enum MethodChannel: String {
-        case init
+        case initOT = "init"
         case shouldShowBanner
         case getOTSDKData
         case acceptAll
@@ -30,7 +31,12 @@ extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
             return
         }
         switch method {
-            case .init:
+            case .initOT:
+                let sdkParams = OTSdkParams(countryCode: "US", regionCode: "CA")
+                sdkParams.setSDKVersion("6.5.0")
+                OTPublishersHeadlessSDK.shared.initOTSDKData(storageLocation: "otcc-demo.otprivacy.com", domainIdentifier: "3598fb78-0000-1111-2222-83ee558d6e87", languageCode: "en", params: sdkParams) { (status, error) in
+                    print("OTT Data fetch result \(status) and error \(String(describing: error ?? nil))")
+                }
                 break;
             case .shouldShowBanner:
                 break;
