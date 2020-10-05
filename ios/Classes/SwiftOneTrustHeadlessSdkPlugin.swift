@@ -10,7 +10,7 @@ public class SwiftOneTrustHeadlessSdkPlugin: NSObject {
   }
 }
 
-extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {x
+extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
     private enum MethodChannel: String {
         case initOT = "init"
         case shouldShowBanner
