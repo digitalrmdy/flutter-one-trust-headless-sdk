@@ -7,8 +7,51 @@ public class SwiftOneTrustHeadlessSdkPlugin: NSObject, FlutterPlugin {
     let instance = SwiftOneTrustHeadlessSdkPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
+}
 
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    result("iOS " + UIDevice.current.systemVersion)
-  }
+extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
+    private enum MethodChannel: String {
+        case init
+        case shouldShowBanner
+        case getOTSDKData
+        case acceptAll
+        case querySDKConsentStatus
+        case updateSdkGroupConsent
+        case querySDKConsentStatusForCategory
+        case confirmConsentChanges
+        case resetConsentChanges
+        case registerSdkListener
+        case clearSdkListeners
+    }
+
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let method = MethodChannel(rawValue: call.method) else {
+            result(FlutterMethodNotImplemented)
+            return
+        }
+        switch method {
+            case .init:
+                break;
+            case .shouldShowBanner:
+                break;
+            case .getOTSDKData:
+                break;
+            case .acceptAll:
+                break;
+            case .querySDKConsentStatus:
+                break;
+            case .updateSdkGroupConsent:
+                break;
+            case .querySDKConsentStatusForCategory:
+                break;
+            case .confirmConsentChanges:
+                break;
+            case .resetConsentChanges:
+                break;
+            case .registerSdkListener:
+                break;
+            case .clearSdkListeners:
+                break;
+        }
+    }
 }
