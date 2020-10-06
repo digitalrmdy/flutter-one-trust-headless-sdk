@@ -1,7 +1,7 @@
 import Flutter
 import UIKit
 
-public class SwiftOneTrustHeadlessSdkPlugin: NSObject, FlutterPlugin {
+public class SwiftOneTrustHeadlessSdkPlugin: NSObject {
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "one_trust_headless_sdk", binaryMessenger: registrar.messenger())
     let instance = SwiftOneTrustHeadlessSdkPlugin()
@@ -11,7 +11,7 @@ public class SwiftOneTrustHeadlessSdkPlugin: NSObject, FlutterPlugin {
 
 extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
     private enum MethodChannel: String {
-        case init
+        case initOT = "init"
         case shouldShowBanner
         case getOTSDKData
         case acceptAll
@@ -30,7 +30,7 @@ extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
             return
         }
         switch method {
-            case .init:
+            case .initOT:
                 break;
             case .shouldShowBanner:
                 break;
