@@ -38,9 +38,6 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
 
     private fun executeChannels(@NonNull call: MethodCall, @NonNull result: Result) {
         when (call.method) {
-            "getPlatformVersion" -> {
-                result.success("Android ${android.os.Build.VERSION.RELEASE}")
-            }
             "init" -> {
                 val storageLocation:String = call.argument<String>("storageLocation")!!
                 val domainIdentifier:String = call.argument<String>("domainIdentifier")!!

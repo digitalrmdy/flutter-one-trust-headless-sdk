@@ -15,11 +15,6 @@ class OneTrustHeadlessSdk {
 
   static Map<String, Function(String, SdkConsentStatus)> _listeners = {};
 
-  static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
-  }
-
   static Future<void> init(
       {@required String storageLocation,
       @required String domainIdentifier,

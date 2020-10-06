@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import OTPublishersHeadlessSDK
 
 public class SwiftOneTrustHeadlessSdkPlugin: NSObject {
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -31,22 +32,55 @@ extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
         }
         switch method {
             case .initOT:
+                let args = call.arguments as! [String: Any]
+                let storageLocation = args["storageLocation"] as! String
+                let domainIdentifier = args["domainIdentifier"] as! String
+                let languageCode = args["languageCode"] as! String
+                let sdkParams = OTSdkParams(countryCode: "BE", regionCode: nil)
+                sdkParams.setSDKVersion("6.6.1")
+                sdkParams.setShouldCreateProfile(true)
+                OTPublishersHeadlessSDK.shared.initOTSDKData(storageLocation: storageLocation, domainIdentifier: domainIdentifier, languageCode: languageCode, params: sdkParams) { (status, error) in
+                    if (!status) {
+                        result(FlutterError(code: "", message: error.debugDescription, details: ""))
+                    } else {
+                        result(nil)
+                    }
+                }
                 break;
             case .shouldShowBanner:
+                result(OTPublishersHeadlessSDK.shared.shouldShowBanner())
                 break;
             case .getOTSDKData:
+                result(OTPublishersHeadlessSDK.shared.getOTSDKData() ?? "")
                 break;
             case .acceptAll:
+                OTPublishersHeadlessSDK.shared.acceptAll()
+                result(nil)
                 break;
             case .querySDKConsentStatus:
+                let args = call.arguments as! [String: Any]
+                let sdkId = args["sdkId"] as! String
+                result(OTPublishersHeadlessSDK.shared.getConsentStatus(forSDKId: sdkId))
                 break;
             case .updateSdkGroupConsent:
+                let args = call.arguments as! [String: Any]
+                let customGroupId = args["customGroupId"] as! String
+                let consentGiven = args["consentGiven"] as! Bool
+                OTPublishersHeadlessSDK.shared.updatePurposeConsent(forGroup: customGroupId, consentValue: consentGiven)
+                result(nil)
                 break;
             case .querySDKConsentStatusForCategory:
+                let args = call.arguments as! [String: Any]
+                let customGroupId = args["customGroupId"] as! String
+                result(OTPublishersHeadlessSDK.shared.getConsentStatus(forCategory: customGroupId))
                 break;
             case .confirmConsentChanges:
+                OTPublishersHeadlessSDK.shared.saveConsentValue()
+                result(nil)
                 break;
             case .resetConsentChanges:
+                OTPublishersHeadlessSDK.shared.resetUpdatedConsent()
+                result(nil)
                 break;
             case .registerSdkListener:
                 break;
