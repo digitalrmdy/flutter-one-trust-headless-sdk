@@ -40,7 +40,9 @@ extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
                 let storageLocation = args["storageLocation"] as! String
                 let domainIdentifier = args["domainIdentifier"] as! String
                 let languageCode = args["languageCode"] as! String
-                let sdkParams = OTSdkParams(countryCode: "BE", regionCode: nil)
+                let countryCode = args["countryCode"] as! String
+                let regionCode = args["regionCode"] as! String?
+                let sdkParams = OTSdkParams(countryCode: countryCode, regionCode: regionCode)
                 sdkParams.setSDKVersion("6.6.1")
                 sdkParams.setShouldCreateProfile("true")
                 OTPublishersHeadlessSDK.shared.initOTSDKData(storageLocation: storageLocation, domainIdentifier: domainIdentifier, languageCode: languageCode, params: sdkParams) { (status, error) in

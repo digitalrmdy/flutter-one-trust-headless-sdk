@@ -18,12 +18,16 @@ class OneTrustHeadlessSdk {
   static Future<void> init(
       {@required String storageLocation,
       @required String domainIdentifier,
-      @required String languageCode}) async {
+      @required String languageCode,
+      @required String countryCode,
+      String regionCode}) async {
     try {
       await _channel.invokeMethod<bool>('init', <String, dynamic>{
         'storageLocation': storageLocation,
         'domainIdentifier': domainIdentifier,
         'languageCode': languageCode,
+        'countryCode': countryCode,
+        if (regionCode != null) 'regionCode': regionCode,
       });
     } on PlatformException catch (e) {
       developer.log('Error during init: ${e.code} - ${e.message}',

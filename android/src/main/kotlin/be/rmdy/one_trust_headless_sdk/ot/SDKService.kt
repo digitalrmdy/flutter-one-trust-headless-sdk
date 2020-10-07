@@ -18,13 +18,17 @@ class SDKService {
 
     var receivers : MutableMap<String, BroadcastReceiver> = mutableMapOf()
 
-    fun initialize(storageLocation: String, domainIdentifier: String, languageCode: String, context: Context, onResult: (Boolean) -> Unit) {
+    fun initialize(storageLocation: String, domainIdentifier: String, languageCode: String, countryCode: String, regionCode: String?, context: Context, onResult: (Boolean) -> Unit) {
             this.context = context;
             _sdk = OTPublishersHeadlessSDK(context)
-            val sdkParams = OTSdkParams.SdkParamsBuilder.newInstance()
+            val sdkParamsBuilder = OTSdkParams.SdkParamsBuilder.newInstance()
                     .setAPIVersion("6.6.1")
                     .shouldCreateProfile(true)
-                    .build()
+                    .setOTCountryCode(countryCode)
+            if(regionCode != null) {
+                sdkParamsBuilder.setOTRegionCode(regionCode)
+            }
+            val sdkParams = sdkParamsBuilder.build()
             _sdk!!.initOTSDKData(storageLocation, domainIdentifier, languageCode,
                     sdkParams,
                     object : OTCallback {

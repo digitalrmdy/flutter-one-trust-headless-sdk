@@ -42,7 +42,9 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
                 val storageLocation:String = call.argument<String>("storageLocation")!!
                 val domainIdentifier:String = call.argument<String>("domainIdentifier")!!
                 val languageCode:String = call.argument<String>("languageCode")!!
-                sdkService.initialize(storageLocation, domainIdentifier, languageCode, context, object: (Boolean) -> Unit {
+                val countryCode:String = call.argument<String>("countryCode")!!
+                val regionCode:String? = call.argument<String>("regionCode")
+                sdkService.initialize(storageLocation, domainIdentifier, languageCode, countryCode, regionCode, context, object: (Boolean) -> Unit {
                     override fun invoke(success: Boolean) {
                         if (success) {
                             result.success(null)
