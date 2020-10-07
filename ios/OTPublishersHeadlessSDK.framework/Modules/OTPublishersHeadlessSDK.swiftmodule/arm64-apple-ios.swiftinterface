@@ -43,13 +43,13 @@ public struct OTCoreConstants {
   @objc public init(countryCode: Swift.String?, regionCode: Swift.String?)
   @objc public func setSDKVersion(_ sdkVersion: Swift.String)
   @objc public func setProfileSyncParams(_ crossDeviceParams: OTProfileSyncParams)
-  @objc public func setShouldCreateProfile(_ shouldCreateProfile: Swift.Bool)
+  @objc public func setShouldCreateProfile(_ shouldCreateProfile: Swift.String)
   @objc override dynamic public init()
   @objc deinit
 }
 @objc public class OTProfileSyncParams : ObjectiveC.NSObject {
   @objc override dynamic public init()
-  @objc public func setSyncProfile(_ enabled: Swift.Bool)
+  @objc public func setSyncProfile(_ syncProfile: Swift.String)
   @objc public func setSyncProfileAuth(_ profileAuth: Swift.String)
   @objc public func setSyncGroupId(_ groupId: Swift.String)
   @objc public func setIdentifier(_ dsid: Swift.String)
@@ -95,6 +95,9 @@ public struct OTCoreConstants {
   @objc public func initializeCCPA(categoryIDs: [Swift.String], geolocation: OTCCPAGeolocation, explicitNotice: Swift.Bool, lsPact: Swift.Bool)
   @objc public func optOutOfSaleOfData()
   @objc public func optIntoSaleOfData()
+  @objc public func writeLogsToFile(_ enable: Swift.Bool, debugLog enableVerbose: Swift.Bool = false)
+  @objc public func setFetchDataURL(_ urlString: Swift.String)
+  @objc public func updateAllVendorsConsentLocal(_ isSelected: Swift.Bool)
   @objc deinit
 }
 public struct OTUIKeys {
@@ -132,11 +135,12 @@ public struct OTUIKeys {
     public static let buttonTextColor: Swift.String
     public static let backgroundColor: Swift.String
     public static let bannerLinksTextColor: Swift.String
+    public static let bannerLink: Swift.String
+    public static let bannerLinkText: Swift.String
     public static let optanonLogo: Swift.String
     public static let showBannerAcceptButton: Swift.String
     public static let showBannerCookieSettings: Swift.String
     public static let isIabEnabled: Swift.String
-    public static let vendorListText: Swift.String
   }
 }
 @objc public enum OTUIType : Swift.Int {

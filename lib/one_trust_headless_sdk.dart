@@ -146,7 +146,6 @@ class OneTrustHeadlessSdk {
 
   static Future<void> updateSdkGroupConsent(
       String customGroupId, bool consentGiven) async {
-    debugPrint("updating consent for $customGroupId to $consentGiven");
     try {
       await _channel
           .invokeMethod<bool>('updateSdkGroupConsent', <String, dynamic>{
@@ -189,6 +188,8 @@ class OneTrustHeadlessSdk {
       @required
           Function(String, SdkConsentStatus) onSdkConsentStatusChanged}) async {
     try {
+      developer.log('Registering sdk listener for : $sdkId',
+          name: 'one_trust_headless_sdk');
       await _channel
           .invokeMethod<bool>('registerSdkListener', <String, dynamic>{
         'sdkId': sdkId,

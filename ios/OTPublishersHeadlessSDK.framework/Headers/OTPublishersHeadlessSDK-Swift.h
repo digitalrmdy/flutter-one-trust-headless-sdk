@@ -311,7 +311,7 @@ SWIFT_CLASS("_TtC23OTPublishersHeadlessSDK19OTProfileSyncParams")
 /// Public function to enable cross device profile sync.
 /// \param enabled Boolean to state if cross device sync should be enabled or not.
 ///
-- (void)setSyncProfile:(BOOL)enabled;
+- (void)setSyncProfile:(NSString * _Nonnull)syncProfile;
 /// Public function to pass sync profile auth.
 /// \param profileAuth String containing sync profile auth.
 ///
@@ -527,6 +527,20 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OTPublishers
 - (void)optOutOfSaleOfData;
 /// Public function to Opt-Into of sale of Data. Toggle Enabled.
 - (void)optIntoSaleOfData;
+/// public method to enable write logs to file.
+/// \param enable enable write logs to file.
+///
+/// \param debugLog enable write debug logs to file. Default status is false.
+///
+- (void)writeLogsToFile:(BOOL)enable debugLog:(BOOL)enableVerbose;
+/// Public function to set fetch data url
+/// \param urlString URL string value
+///
+- (void)setFetchDataURL:(NSString * _Nonnull)urlString;
+/// Public function to update all vendor consent locally
+/// \param isSelected Pass true/false to update all vendor consent to 1/0 locally
+///
+- (void)updateAllVendorsConsentLocal:(BOOL)isSelected;
 @end
 
 
@@ -550,7 +564,7 @@ SWIFT_CLASS("_TtC23OTPublishersHeadlessSDK11OTSdkParams")
 /// Public function to enable profile creation.
 /// \param enabled Boolean to state if profile creation should be enabled or not.
 ///
-- (void)setShouldCreateProfile:(BOOL)shouldCreateProfile;
+- (void)setShouldCreateProfile:(NSString * _Nonnull)shouldCreateProfile;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -900,7 +914,7 @@ SWIFT_CLASS("_TtC23OTPublishersHeadlessSDK19OTProfileSyncParams")
 /// Public function to enable cross device profile sync.
 /// \param enabled Boolean to state if cross device sync should be enabled or not.
 ///
-- (void)setSyncProfile:(BOOL)enabled;
+- (void)setSyncProfile:(NSString * _Nonnull)syncProfile;
 /// Public function to pass sync profile auth.
 /// \param profileAuth String containing sync profile auth.
 ///
@@ -1116,6 +1130,20 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OTPublishers
 - (void)optOutOfSaleOfData;
 /// Public function to Opt-Into of sale of Data. Toggle Enabled.
 - (void)optIntoSaleOfData;
+/// public method to enable write logs to file.
+/// \param enable enable write logs to file.
+///
+/// \param debugLog enable write debug logs to file. Default status is false.
+///
+- (void)writeLogsToFile:(BOOL)enable debugLog:(BOOL)enableVerbose;
+/// Public function to set fetch data url
+/// \param urlString URL string value
+///
+- (void)setFetchDataURL:(NSString * _Nonnull)urlString;
+/// Public function to update all vendor consent locally
+/// \param isSelected Pass true/false to update all vendor consent to 1/0 locally
+///
+- (void)updateAllVendorsConsentLocal:(BOOL)isSelected;
 @end
 
 
@@ -1139,7 +1167,7 @@ SWIFT_CLASS("_TtC23OTPublishersHeadlessSDK11OTSdkParams")
 /// Public function to enable profile creation.
 /// \param enabled Boolean to state if profile creation should be enabled or not.
 ///
-- (void)setShouldCreateProfile:(BOOL)shouldCreateProfile;
+- (void)setShouldCreateProfile:(NSString * _Nonnull)shouldCreateProfile;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end

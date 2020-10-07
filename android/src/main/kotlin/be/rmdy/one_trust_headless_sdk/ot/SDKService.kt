@@ -76,7 +76,6 @@ class SDKService {
         if (receivers[sdkId] != null) {
             context?.unregisterReceiver(receivers[sdkId])
             receivers.remove(sdkId)
-            Log.i("OTHSP", "Unregistered previous BroadcastReceiver for $sdkId ")
         }
         val filter = IntentFilter(sdkId)
         var broadcastReceiver = object : BroadcastReceiver() {
@@ -86,11 +85,9 @@ class SDKService {
         }
         context?.registerReceiver(broadcastReceiver, filter)
         receivers[sdkId] = broadcastReceiver
-        Log.i("OTHSP", "Registered BroadcastReceiver for $sdkId ")
     }
 
     fun clearSdkListeners() {
-        Log.i("OTHSP", "Unregistering ${receivers.size} BroadcastReceivers ")
         for (receiver in receivers.values) {
             context?.unregisterReceiver(receiver)
         }

@@ -3,14 +3,18 @@ import UIKit
 import OTPublishersHeadlessSDK
 
 public class SwiftOneTrustHeadlessSdkPlugin: NSObject {
+    var registeredListeners = [String]()
+    static var channel: FlutterMethodChannel? = nil
+    
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "one_trust_headless_sdk", binaryMessenger: registrar.messenger())
+    channel = FlutterMethodChannel(name: "one_trust_headless_sdk", binaryMessenger: registrar.messenger())
     let instance = SwiftOneTrustHeadlessSdkPlugin()
-    registrar.addMethodCallDelegate(instance, channel: channel)
+    registrar.addMethodCallDelegate(instance, channel: channel!)
   }
 }
 
 extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
+    
     private enum MethodChannel: String {
         case initOT = "init"
         case shouldShowBanner
@@ -38,7 +42,7 @@ extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
                 let languageCode = args["languageCode"] as! String
                 let sdkParams = OTSdkParams(countryCode: "BE", regionCode: nil)
                 sdkParams.setSDKVersion("6.6.1")
-                sdkParams.setShouldCreateProfile(true)
+                sdkParams.setShouldCreateProfile("true")
                 OTPublishersHeadlessSDK.shared.initOTSDKData(storageLocation: storageLocation, domainIdentifier: domainIdentifier, languageCode: languageCode, params: sdkParams) { (status, error) in
                     if (!status) {
                         result(FlutterError(code: "", message: error.debugDescription, details: ""))
@@ -83,9 +87,36 @@ extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
                 result(nil)
                 break;
             case .registerSdkListener:
+                let args = call.arguments as! [String: Any]
+                let sdkId = args["sdkId"] as! String
+                if (registeredListeners.contains(sdkId)) {
+                    NotificationCenter.default.removeObserver(NSNotification.Name(rawValue: sdkId))
+                } else {
+                    registeredListeners.append(sdkId);
+                }
+                NotificationCenter.default.addObserver(self,
+                      selector: #selector(actionConsent_SDK(_:)),
+                      name: NSNotification.Name(rawValue: sdkId),
+                      object: nil)
+                result(nil)
                 break;
             case .clearSdkListeners:
+                registeredListeners.forEach { sdkId  in
+                    NotificationCenter.default.removeObserver(NSNotification.Name(rawValue: sdkId))
+                }
+                result(nil)
                 break;
         }
+    }
+    
+    // SDK Observer Function
+    @objc func actionConsent_SDK(_ notification:Notification){
+        if let consentStatus = notification.object as? Int {
+            var params = [String:Any]()
+            params["sdkId"] = notification.name.rawValue
+            params["consentStatus"] = consentStatus
+            SwiftOneTrustHeadlessSdkPlugin.channel!.invokeMethod("sdkConsentStatusUpdated", arguments: params)
+        }
+        
     }
 }

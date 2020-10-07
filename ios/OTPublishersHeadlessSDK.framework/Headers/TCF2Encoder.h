@@ -2,7 +2,6 @@
 //  TCF2_Encoder.h
 //  TCF_2_String_Encode
 //
-//  Created by OneTrust on 5/18/20.
 //  Copyright © 2020 OneTrust, LLC. All rights reserved.
 //
 

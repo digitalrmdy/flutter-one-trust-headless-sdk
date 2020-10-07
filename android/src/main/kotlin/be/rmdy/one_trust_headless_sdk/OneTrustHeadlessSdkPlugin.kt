@@ -100,7 +100,6 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
     }
 
     private fun sdkConsentStatusUpdated(sdkId: String, consentStatus: Int) {
-        Log.i("OTHSP", "sdkConsent for $sdkId to $consentStatus");
         channel.invokeMethod("sdkConsentStatusUpdated", mapOf("sdkId" to sdkId, "consentStatus" to consentStatus) )
     }
 
