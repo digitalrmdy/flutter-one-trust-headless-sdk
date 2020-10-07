@@ -18,13 +18,17 @@ class SDKService {
 
     var receivers : MutableMap<String, BroadcastReceiver> = mutableMapOf()
 
-    fun initialize(storageLocation: String, domainIdentifier: String, languageCode: String, context: Context, onResult: (Boolean) -> Unit) {
+    fun initialize(storageLocation: String, domainIdentifier: String, languageCode: String, countryCode: String, regionCode: String?, context: Context, onResult: (Boolean) -> Unit) {
             this.context = context;
             _sdk = OTPublishersHeadlessSDK(context)
-            val sdkParams = OTSdkParams.SdkParamsBuilder.newInstance()
+            val sdkParamsBuilder = OTSdkParams.SdkParamsBuilder.newInstance()
                     .setAPIVersion("6.6.1")
                     .shouldCreateProfile(true)
-                    .build()
+                    .setOTCountryCode(countryCode)
+            if(regionCode != null) {
+                sdkParamsBuilder.setOTRegionCode(regionCode)
+            }
+            val sdkParams = sdkParamsBuilder.build()
             _sdk!!.initOTSDKData(storageLocation, domainIdentifier, languageCode,
                     sdkParams,
                     object : OTCallback {
@@ -76,7 +80,6 @@ class SDKService {
         if (receivers[sdkId] != null) {
             context?.unregisterReceiver(receivers[sdkId])
             receivers.remove(sdkId)
-            Log.i("OTHSP", "Unregistered previous BroadcastReceiver for $sdkId ")
         }
         val filter = IntentFilter(sdkId)
         var broadcastReceiver = object : BroadcastReceiver() {
@@ -86,11 +89,9 @@ class SDKService {
         }
         context?.registerReceiver(broadcastReceiver, filter)
         receivers[sdkId] = broadcastReceiver
-        Log.i("OTHSP", "Registered BroadcastReceiver for $sdkId ")
     }
 
     fun clearSdkListeners() {
-        Log.i("OTHSP", "Unregistering ${receivers.size} BroadcastReceivers ")
         for (receiver in receivers.values) {
             context?.unregisterReceiver(receiver)
         }

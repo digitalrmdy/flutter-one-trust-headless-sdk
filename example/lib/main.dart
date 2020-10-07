@@ -38,10 +38,12 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       await OneTrustHeadlessSdk.init(
-        storageLocation: "cdn.cookielaw.org",
-        domainIdentifier: "f1383ce9-d3ad-4e0d-98bf-6e736846266b-test",
-        languageCode: "en",
-      );
+          storageLocation: "cdn.cookielaw.org",
+          domainIdentifier:
+              "f1383ce9-d3ad-4e0d-98bf-6e736846266b-test", //ANDROID
+          //domainIdentifier: "e0b59922-55ca-4e21-aca6-1b6b17803d37-test", //IOS
+          languageCode: "en",
+          countryCode: "BE");
       var sdks = await OneTrustHeadlessSdk.sdks;
       sdks.forEach((sdk) async {
         await OneTrustHeadlessSdk.registerSdkListener(
@@ -52,8 +54,6 @@ class _MyAppState extends State<MyApp> {
           sdkId: sdks.last.sdkId,
           onSdkConsentStatusChanged:
               (String sdkId, SdkConsentStatus consentStatus) {
-            print(
-                "Sdk consentStatus updated for $sdkId to $consentStatus in a specific listener");
             Fluttertoast.showToast(
                 msg:
                     "consentStatus updated for $sdkId to $consentStatus in a specific listener",
@@ -66,6 +66,7 @@ class _MyAppState extends State<MyApp> {
           });
     } on PlatformException catch (e) {
       error = "${e.code} - ${e.message}";
+      print("error: $error");
     }
     await _updateData();
 
@@ -149,7 +150,6 @@ class _MyAppState extends State<MyApp> {
 
   void _onSdkConsentStatusChanged(
       String sdkId, SdkConsentStatus consentStatus) {
-    print("Sdk consentStatus updated for first $sdkId to $consentStatus");
     Fluttertoast.showToast(
         msg: "consentStatus updated for $sdkId to $consentStatus",
         toastLength: Toast.LENGTH_LONG,

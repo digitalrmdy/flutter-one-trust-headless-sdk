@@ -38,14 +38,13 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
 
     private fun executeChannels(@NonNull call: MethodCall, @NonNull result: Result) {
         when (call.method) {
-            "getPlatformVersion" -> {
-                result.success("Android ${android.os.Build.VERSION.RELEASE}")
-            }
             "init" -> {
                 val storageLocation:String = call.argument<String>("storageLocation")!!
                 val domainIdentifier:String = call.argument<String>("domainIdentifier")!!
                 val languageCode:String = call.argument<String>("languageCode")!!
-                sdkService.initialize(storageLocation, domainIdentifier, languageCode, context, object: (Boolean) -> Unit {
+                val countryCode:String = call.argument<String>("countryCode")!!
+                val regionCode:String? = call.argument<String>("regionCode")
+                sdkService.initialize(storageLocation, domainIdentifier, languageCode, countryCode, regionCode, context, object: (Boolean) -> Unit {
                     override fun invoke(success: Boolean) {
                         if (success) {
                             result.success(null)
@@ -65,7 +64,7 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
                 sdkService.acceptAll()
                 return result.success(null)
             }
-            "querySDKConsentStatus" -> {
+            "queryConsentStatusForSdk" -> {
                 val sdkId:String = call.argument<String>("sdkId")!!
                 return result.success(sdkService.querySDKConsentStatus(sdkId))
             }
@@ -75,7 +74,7 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
                 sdkService.updateSdkGroupConsent(customGroupId, consentGiven)
                 result.success(null)
             }
-            "querySDKConsentStatusForCategory" -> {
+            "queryConsentStatusForCategory" -> {
                 val customGroupId:String = call.argument<String>("customGroupId")!!
                 return result.success(sdkService.querySDKConsentStatusForCategory(customGroupId))
             }
@@ -103,7 +102,6 @@ public class OneTrustHeadlessSdkPlugin: FlutterPlugin, MethodCallHandler {
     }
 
     private fun sdkConsentStatusUpdated(sdkId: String, consentStatus: Int) {
-        Log.i("OTHSP", "sdkConsent for $sdkId to $consentStatus");
         channel.invokeMethod("sdkConsentStatusUpdated", mapOf("sdkId" to sdkId, "consentStatus" to consentStatus) )
     }
 

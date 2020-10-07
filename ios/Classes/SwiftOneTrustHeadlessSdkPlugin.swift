@@ -3,22 +3,26 @@ import UIKit
 import OTPublishersHeadlessSDK
 
 public class SwiftOneTrustHeadlessSdkPlugin: NSObject {
+    var registeredListeners = [String]()
+    static var channel: FlutterMethodChannel? = nil
+    
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "one_trust_headless_sdk", binaryMessenger: registrar.messenger())
+    channel = FlutterMethodChannel(name: "one_trust_headless_sdk", binaryMessenger: registrar.messenger())
     let instance = SwiftOneTrustHeadlessSdkPlugin()
-    registrar.addMethodCallDelegate(instance, channel: channel)
+    registrar.addMethodCallDelegate(instance, channel: channel!)
   }
 }
 
 extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
+    
     private enum MethodChannel: String {
         case initOT = "init"
         case shouldShowBanner
         case getOTSDKData
         case acceptAll
-        case querySDKConsentStatus
+        case queryConsentStatusForSdk
         case updateSdkGroupConsent
-        case querySDKConsentStatusForCategory
+        case queryConsentStatusForCategory
         case confirmConsentChanges
         case resetConsentChanges
         case registerSdkListener
@@ -32,32 +36,89 @@ extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
         }
         switch method {
             case .initOT:
-                let sdkParams = OTSdkParams(countryCode: "US", regionCode: "CA")
-                sdkParams.setSDKVersion("6.5.0")
-                OTPublishersHeadlessSDK.shared.initOTSDKData(storageLocation: "otcc-demo.otprivacy.com", domainIdentifier: "3598fb78-0000-1111-2222-83ee558d6e87", languageCode: "en", params: sdkParams) { (status, error) in
-                    print("OTT Data fetch result \(status) and error \(String(describing: error ?? nil))")
+                let args = call.arguments as! [String: Any]
+                let storageLocation = args["storageLocation"] as! String
+                let domainIdentifier = args["domainIdentifier"] as! String
+                let languageCode = args["languageCode"] as! String
+                let countryCode = args["countryCode"] as! String
+                let regionCode = args["regionCode"] as! String?
+                let sdkParams = OTSdkParams(countryCode: countryCode, regionCode: regionCode)
+                sdkParams.setSDKVersion("6.6.1")
+                sdkParams.setShouldCreateProfile("true")
+                OTPublishersHeadlessSDK.shared.initOTSDKData(storageLocation: storageLocation, domainIdentifier: domainIdentifier, languageCode: languageCode, params: sdkParams) { (status, error) in
+                    if (!status) {
+                        result(FlutterError(code: "", message: error.debugDescription, details: ""))
+                    } else {
+                        result(nil)
+                    }
                 }
                 break;
             case .shouldShowBanner:
+                result(OTPublishersHeadlessSDK.shared.shouldShowBanner())
                 break;
             case .getOTSDKData:
+                result(OTPublishersHeadlessSDK.shared.getOTSDKData() ?? "")
                 break;
             case .acceptAll:
+                OTPublishersHeadlessSDK.shared.acceptAll()
+                result(nil)
                 break;
-            case .querySDKConsentStatus:
+            case .queryConsentStatusForSdk:
+                let args = call.arguments as! [String: Any]
+                let sdkId = args["sdkId"] as! String
+                result(OTPublishersHeadlessSDK.shared.getConsentStatus(forSDKId: sdkId))
                 break;
             case .updateSdkGroupConsent:
+                let args = call.arguments as! [String: Any]
+                let customGroupId = args["customGroupId"] as! String
+                let consentGiven = args["consentGiven"] as! Bool
+                OTPublishersHeadlessSDK.shared.updatePurposeConsent(forGroup: customGroupId, consentValue: consentGiven)
+                result(nil)
                 break;
-            case .querySDKConsentStatusForCategory:
+            case .queryConsentStatusForCategory:
+                let args = call.arguments as! [String: Any]
+                let customGroupId = args["customGroupId"] as! String
+                result(OTPublishersHeadlessSDK.shared.getConsentStatus(forCategory: customGroupId))
                 break;
             case .confirmConsentChanges:
+                OTPublishersHeadlessSDK.shared.saveConsentValue()
+                result(nil)
                 break;
             case .resetConsentChanges:
+                OTPublishersHeadlessSDK.shared.resetUpdatedConsent()
+                result(nil)
                 break;
             case .registerSdkListener:
+                let args = call.arguments as! [String: Any]
+                let sdkId = args["sdkId"] as! String
+                if (registeredListeners.contains(sdkId)) {
+                    NotificationCenter.default.removeObserver(NSNotification.Name(rawValue: sdkId))
+                } else {
+                    registeredListeners.append(sdkId);
+                }
+                NotificationCenter.default.addObserver(self,
+                      selector: #selector(actionConsent_SDK(_:)),
+                      name: NSNotification.Name(rawValue: sdkId),
+                      object: nil)
+                result(nil)
                 break;
             case .clearSdkListeners:
+                registeredListeners.forEach { sdkId  in
+                    NotificationCenter.default.removeObserver(NSNotification.Name(rawValue: sdkId))
+                }
+                result(nil)
                 break;
         }
+    }
+    
+    // SDK Observer Function
+    @objc func actionConsent_SDK(_ notification:Notification){
+        if let consentStatus = notification.object as? Int {
+            var params = [String:Any]()
+            params["sdkId"] = notification.name.rawValue
+            params["consentStatus"] = consentStatus
+            SwiftOneTrustHeadlessSdkPlugin.channel!.invokeMethod("sdkConsentStatusUpdated", arguments: params)
+        }
+        
     }
 }
