@@ -20,9 +20,9 @@ extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
         case shouldShowBanner
         case getOTSDKData
         case acceptAll
-        case querySDKConsentStatus
+        case queryConsentStatusForSdk
         case updateSdkGroupConsent
-        case querySDKConsentStatusForCategory
+        case queryConsentStatusForCategory
         case confirmConsentChanges
         case resetConsentChanges
         case registerSdkListener
@@ -61,7 +61,7 @@ extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
                 OTPublishersHeadlessSDK.shared.acceptAll()
                 result(nil)
                 break;
-            case .querySDKConsentStatus:
+            case .queryConsentStatusForSdk:
                 let args = call.arguments as! [String: Any]
                 let sdkId = args["sdkId"] as! String
                 result(OTPublishersHeadlessSDK.shared.getConsentStatus(forSDKId: sdkId))
@@ -73,7 +73,7 @@ extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
                 OTPublishersHeadlessSDK.shared.updatePurposeConsent(forGroup: customGroupId, consentValue: consentGiven)
                 result(nil)
                 break;
-            case .querySDKConsentStatusForCategory:
+            case .queryConsentStatusForCategory:
                 let args = call.arguments as! [String: Any]
                 let customGroupId = args["customGroupId"] as! String
                 result(OTPublishersHeadlessSDK.shared.getConsentStatus(forCategory: customGroupId))
