@@ -43,7 +43,7 @@ extension SwiftOneTrustHeadlessSdkPlugin: FlutterPlugin {
                 let countryCode = args["countryCode"] as! String
                 let regionCode = args["regionCode"] as! String?
                 let sdkParams = OTSdkParams(countryCode: countryCode, regionCode: regionCode)
-                sdkParams.setSDKVersion("6.6.1")
+                sdkParams.setSDKVersion("6.7.0")
                 sdkParams.setShouldCreateProfile("true")
                 OTPublishersHeadlessSDK.shared.initOTSDKData(storageLocation: storageLocation, domainIdentifier: domainIdentifier, languageCode: languageCode, params: sdkParams) { (status, error) in
                     if (!status) {
