@@ -23,7 +23,7 @@ class SDKService {
             _sdk = OTPublishersHeadlessSDK(context)
             val sdkParamsBuilder = OTSdkParams.SdkParamsBuilder.newInstance()
                     .setAPIVersion("6.7.0")
-                    .shouldCreateProfile(true)
+                    .shouldCreateProfile("true")
                     .setOTCountryCode(countryCode)
             if(regionCode != null) {
                 sdkParamsBuilder.setOTRegionCode(regionCode)
