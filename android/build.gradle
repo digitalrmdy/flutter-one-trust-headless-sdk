@@ -41,5 +41,5 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.onetrust.cmp:native-sdk:6.7.0.0'
+    implementation 'com.onetrust.cmp:native-sdk:6.8.0.0'
 }
